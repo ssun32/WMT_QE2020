@@ -85,7 +85,8 @@ def get_wp_matrix(ids, mts, wps, tokenizer):
                     next_mt_tok = mt_toks[mt_i]
     return wp_matrix
 
-def collate_fn(batches, tokenizer):
+
+def collate_fn(batches, tokenizer, use_word_probs=False):
     batch_text = []
     mts = []
     wps = []
@@ -96,9 +97,12 @@ def collate_fn(batches, tokenizer):
         wps.append(batch["wp"])
         batch_scores.append(batch["score"])
     tokenized = tokenizer.batch_encode_plus(batch_text, max_length=256, pad_to_max_length=True, return_tensors = "pt")
-
-    wp_matrix = get_wp_matrix(tokenized["input_ids"].tolist(), mts, wps, tokenizer)
-    return tokenized, torch.tensor(wp_matrix), batch_scores
+    if use_word_probs:
+        wp_matrix = get_wp_matrix(tokenized["input_ids"].tolist(), mts, wps, tokenizer)
+        wp_matrix = torch.tensor(wp_matrix)
+    else:
+        wp_matrix = None
+    return tokenized, wp_matrix, batch_scores
 
 
 class QEDataset(Dataset):
@@ -118,7 +122,6 @@ class QEDataset(Dataset):
         for i, (l, l2) in enumerate(zip(open(mt_filepath), open(wp_filepath))):
            self.dataset[i]["mt"] = l.strip().split()
            self.dataset[i]["wp"] = l2.strip().split()
-
 
     def __len__(self):
         return len(self.dataset)
