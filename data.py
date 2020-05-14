@@ -106,7 +106,7 @@ def collate_fn(batches, tokenizer, use_word_probs=False):
 
 
 class QEDataset(Dataset):
-    def __init__(self, filepath, mt_filepath, wp_filepath, score_field=None,):
+    def __init__(self, filepath, mt_filepath, wp_filepath, score_field=None):
 
         self.dataset = []
         for i, l in enumerate(open(filepath)):
@@ -114,7 +114,7 @@ class QEDataset(Dataset):
                 header = {h:j for j,h in enumerate(l.strip().split("\t"))}
             else:
                 items = l.strip().split("\t")
-                score = None if score_field is None else float(items[header[score_field]])/100
+                score = None if score_field is None else float(items[header[score_field]])
                 self.dataset.append({"source": items[header["original"]],
                                "target": items[header["translation"]],
                                "score": score})
