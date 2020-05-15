@@ -43,7 +43,7 @@ elif args.model.lower() == "xlm_roberta":
     accum_grad = 1
 elif args.model.lower() == "xlm_roberta_large":
     model_name = "xlm-roberta-large"
-    model_dim=  1280
+    model_dim=  1024
     learning_rate = 1e-6
     batch_size = 6 * args.num_gpus
     eval_interval = 100
