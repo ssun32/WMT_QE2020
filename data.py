@@ -119,24 +119,32 @@ def collate_fn(batches, tokenizer, use_word_probs=False, encode_separately=False
 
 class QEDataset(Dataset):
     def __init__(self, filepath, mt_filepath, wp_filepath, score_field=None):
+        if type(filepath) == type("str"):
+            filepath = [filepath]
+            mt_filepath = [mt_filepath]
+            wp_filepath = [wp_filepath]
 
-        self.dataset = []
-        for i, l in enumerate(open(filepath)):
-            if i == 0:
-                header = {h:j for j,h in enumerate(l.strip().split("\t"))}
-            else:
-                items = l.strip().split("\t")
-                score = None if score_field is None else float(items[header[score_field]])
-                self.dataset.append({"source": items[header["original"]],
-                               "target": items[header["translation"]],
-                               "score": score})
+        self.datasets = []
+        for fp, mtp, wpp in zip(filepath, mt_filepath, wp_filepath):
+            dataset = []
 
-        for i, (l, l2) in enumerate(zip(open(mt_filepath), open(wp_filepath))):
-           self.dataset[i]["mt"] = l.strip().split()
-           self.dataset[i]["wp"] = l2.strip().split()
+            for i, l in enumerate(open(fp)):
+                if i == 0:
+                    header = {h:j for j,h in enumerate(l.strip().split("\t"))}
+                else:
+                    items = l.strip().split("\t")
+                    score = None if score_field is None else float(items[header[score_field]])
+                    dataset.append({"source": items[header["original"]],
+                                   "target": items[header["translation"]],
+                                   "score": score})
+
+            for i, (l, l2) in enumerate(zip(open(mtp), open(wpp))):
+               dataset[i]["mt"] = l.strip().split()
+               dataset[i]["wp"] = l2.strip().split()
+            self.datasets += dataset
 
     def __len__(self):
-        return len(self.dataset)
+        return len(self.datasets)
 
     def __getitem__(self, index):
-        return self.dataset[index]
+        return self.datasets[index]
