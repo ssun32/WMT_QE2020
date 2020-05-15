@@ -16,6 +16,9 @@ def get_wp_matrix(ids, mts, wps, tokenizer, target_only=False):
             while bert_toks[bert_i] != tokenizer.sep_token:
                 bert_i += 1
             bert_i += 1
+            #hack for xlm-roberta
+            if bert_toks[bert_i] == tokenizer.sep_token:
+                bert_i += 1
 
         done = False
         next_bert_tok = bert_toks[bert_i]
@@ -23,7 +26,7 @@ def get_wp_matrix(ids, mts, wps, tokenizer, target_only=False):
         debug = ''
         retry = 0
         while not done:
-            next_bert_tok = next_bert_tok.replace("##", "").replace("</w>", "")
+            next_bert_tok = next_bert_tok.replace("##", "").replace("</w>", "").replace("▁","")
             next_mt_tok = next_mt_tok.replace("@@", "").replace("▁","")
             if  "%s %s" % (next_bert_tok, next_mt_tok) == debug:
                 if retry > 10:
