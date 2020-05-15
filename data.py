@@ -1,7 +1,7 @@
 import torch
 from torch.utils.data import Dataset
 
-def get_wp_matrix(ids, mts, wps, tokenizer):
+def get_wp_matrix(ids, mts, wps, tokenizer, target_only=False):
     wp_matrix = []
     for id, mt_toks, word_probs in zip(ids, mts, wps):
 
@@ -10,9 +10,12 @@ def get_wp_matrix(ids, mts, wps, tokenizer):
         bert_i, mt_i, wp_i = 0, 0, 0
 
         #start after the sep token
-        while bert_toks[bert_i] != tokenizer.sep_token:
+        if target_only:
+            bert_i = 1
+        else:
+            while bert_toks[bert_i] != tokenizer.sep_token:
+                bert_i += 1
             bert_i += 1
-        bert_i += 1
 
         done = False
         next_bert_tok = bert_toks[bert_i]
@@ -21,7 +24,7 @@ def get_wp_matrix(ids, mts, wps, tokenizer):
         retry = 0
         while not done:
             next_bert_tok = next_bert_tok.replace("##", "").replace("</w>", "")
-            next_mt_tok = next_mt_tok.replace("@@", "")
+            next_mt_tok = next_mt_tok.replace("@@", "").replace("▁","")
             if  "%s %s" % (next_bert_tok, next_mt_tok) == debug:
                 if retry > 10:
                     mt_i += 1
@@ -86,19 +89,28 @@ def get_wp_matrix(ids, mts, wps, tokenizer):
     return wp_matrix
 
 
-def collate_fn(batches, tokenizer, use_word_probs=False):
+def collate_fn(batches, tokenizer, use_word_probs=False, encode_separately=False):
     batch_text = []
+    src_batch_text = []
+    tgt_batch_text = []
     mts = []
     wps = []
     batch_scores = []
     for batch in batches:
+        src_batch_text.append(batch["source"])
+        tgt_batch_text.append(batch["target"])
         batch_text.append((batch["source"], batch["target"]))
         mts.append(batch["mt"])
         wps.append(batch["wp"])
         batch_scores.append(batch["score"])
-    tokenized = tokenizer.batch_encode_plus(batch_text, max_length=256, pad_to_max_length=True, return_tensors = "pt")
+
+    if not encode_separately:
+        tokenized = [tokenizer.batch_encode_plus(batch_text, max_length=256, pad_to_max_length=True, return_tensors = "pt")]
+    else:
+        tokenized = [tokenizer.batch_encode_plus(src_batch_text, max_length=128, pad_to_max_length=True, return_tensors = "pt"), tokenizer.batch_encode_plus(tgt_batch_text, max_length=128, pad_to_max_length=True, return_tensors = "pt")]
+
     if use_word_probs:
-        wp_matrix = get_wp_matrix(tokenized["input_ids"].tolist(), mts, wps, tokenizer)
+        wp_matrix = get_wp_matrix(tokenized[-1]["input_ids"].tolist(), mts, wps, tokenizer, target_only=encode_separately)
         wp_matrix = torch.tensor(wp_matrix)
     else:
         wp_matrix = None

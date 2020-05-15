@@ -18,6 +18,7 @@ parser.add_argument('--tgt', default="de")
 parser.add_argument('--model', default="bert")
 parser.add_argument('--output_prefix', required=True)
 parser.add_argument('--use_word_probs', nargs="?", const=True, default=False)
+parser.add_argument('--encode_separately', nargs="?", const=True, default=False)
 args = parser.parse_args()
 print(args)
 
@@ -28,13 +29,24 @@ tgt_lcode = args.tgt
 if args.model.lower() == "xlm":
     model_name = "xlm-mlm-100-1280"
     model_dim = 1280
-    learning_rate = 1e-5
-    batch_size = 8
+    learning_rate = 1e-6
+    batch_size = 6
+    eval_interval = 200
+    accum_grad = 2
+elif args.model.lower() == "xlm_roberta":
+    model_name = "xlm-roberta-base"
+    model_dim=  768
+    learning_rate = 1e-6
+    batch_size = 16
+    eval_interval = 100
+    accum_grad = 1
 else:
     model_name = "bert-base-multilingual-cased"
     model_dim = 768
     learning_rate = 1e-6
     batch_size = 16
+    eval_interval = 100
+    accum_grad = 1
     if args.use_word_probs:
         batch_size = 12
 
@@ -43,7 +55,7 @@ gpu="cuda:0" if torch.cuda.is_available() else "cpu"
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 transformer = AutoModel.from_pretrained(model_name)
 
-model = QE(transformer, model_dim, use_word_probs = args.use_word_probs).to(gpu)
+model = QE(transformer, model_dim, use_word_probs = args.use_word_probs, encode_separately=args.encode_separately).to(gpu)
 model.train()
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 loss_fn = torch.nn.MSELoss()
@@ -74,10 +86,15 @@ test_dataset = QEDataset(test_file, test_mt_file, test_wp_file, score_field=None
 def eval(dataset, get_metrics=False):
     model.eval()
     predicted_scores, actual_scores = [], []
-    for batch, wps, labels in tqdm(DataLoader(dataset, batch_size=batch_size, collate_fn=partial(collate_fn, tokenizer=tokenizer, use_word_probs = args.use_word_probs), shuffle=False)):
-        batch = {k: v.to(gpu) for k, v in batch.items()}
+    for batch, wps, labels in tqdm(DataLoader(dataset, batch_size=batch_size, collate_fn=partial(collate_fn, tokenizer=tokenizer, use_word_probs = args.use_word_probs, encode_separately=args.encode_separately), shuffle=False)):
+        batch = [{k: v.to(gpu) for k, v in b.items()} for b in batch]
         wps = wps.to(gpu) if wps is not None else wps
-        predicted_scores += model(batch, wps).flatten().tolist()
+
+        #force nan to be 0, this deals with bad inputs from si-en dataset
+        outputs = model(batch, wps)
+        outputs[torch.isnan(outputs)] = 0 
+        predicted_scores += outputs.flatten().tolist()
+
         actual_scores += labels
     if get_metrics:
         predicted_scores = np.array(predicted_scores)
@@ -92,26 +109,36 @@ def eval(dataset, get_metrics=False):
 global_steps = 0
 best_eval = 0
 early_stop = 0
+accum_counter = 0
 for epoch in range(20):
     print("Epoch ", epoch)
     total_loss = 0
     total = 0
-    for batch, wps, labels in tqdm(DataLoader(train_dataset, batch_size=batch_size, collate_fn=partial(collate_fn, tokenizer=tokenizer, use_word_probs=args.use_word_probs), shuffle=True)):
-        batch = {k: v.to(gpu) for k, v in batch.items()}
+    for batch, wps, labels in tqdm(DataLoader(train_dataset, batch_size=batch_size, collate_fn=partial(collate_fn, tokenizer=tokenizer, use_word_probs=args.use_word_probs, encode_separately=args.encode_separately), shuffle=True)):
+        batch = [{k: v.to(gpu) for k, v in b.items()} for b in batch]
         wps = wps.to(gpu) if wps is not None else wps
         labels = torch.tensor(labels).to(gpu)
         outputs = model(batch, wps).squeeze()
+
+        #drop batch with nan
+        if torch.isnan(outputs).any():
+            continue
 
         loss = loss_fn(outputs.squeeze(), labels)
         cur_batch_size = labels.size(0)
         total_loss += loss.item() * cur_batch_size
         total += cur_batch_size
-        optimizer.zero_grad()
         loss.backward()
-        optimizer.step()
+        accum_counter += 1
+
+        if accum_counter % accum_grad == 0:
+            optimizer.step()
+            optimizer.zero_grad()
+            accum_counter = 0
+
         global_steps += 1
 
-        if global_steps % 100 == 0:
+        if global_steps % eval_interval == 0:
             predicted_scores, pearson, mse =  eval(dev_dataset, get_metrics=True)
             if pearson > best_eval:
                 best_eval = pearson
@@ -133,7 +160,7 @@ for epoch in range(20):
             log = "Epoch %s Global steps: %s Train loss: %.4f Dev loss: %.4f Current r:%.4f Best r: %.4f" % (epoch, global_steps, total_loss/total, mse, pearson, best_eval)
             print(log)
             print(log, file=flog)
-        if early_stop > 50:
+        if early_stop > 25:
             break
-    if early_stop > 50:
+    if early_stop > 25:
         break
