@@ -38,7 +38,7 @@ elif args.model.lower() == "xlm_roberta":
     model_name = "xlm-roberta-base"
     model_dim=  768
     learning_rate = 1e-6
-    batch_size = 16 * args.num_gpus
+    batch_size = 12 * args.num_gpus
     eval_interval = 100
     accum_grad = 1
 elif args.model.lower() == "xlm_roberta_large":
@@ -146,6 +146,7 @@ for epoch in range(50):
         total_loss += loss.item() * cur_batch_size
         total_batches += cur_batch_size
         loss.backward()
+        del loss
         accum_counter += 1
 
         if accum_counter % accum_grad == 0:
@@ -155,51 +156,52 @@ for epoch in range(50):
 
         global_steps += 1
 
-        if global_steps % eval_interval == 0:
-            dev_results = []
-            total_pearson, total = 0, 0
-            print("\nCalculating results on dev set(s)...")
-            for lcodes, dev_dataset in dev_datasets:
-                predicted_scores, pearson, mse =  eval(dev_dataset, get_metrics=True)
-                dev_results.append((lcodes, predicted_scores, pearson, mse))
-                total_pearson += pearson
-                total += 1
+        with torch.no_grad():
+            if global_steps % eval_interval == 0:
+                dev_results = []
+                total_pearson, total = 0, 0
+                print("\nCalculating results on dev set(s)...")
+                for lcodes, dev_dataset in dev_datasets:
+                    predicted_scores, pearson, mse =  eval(dev_dataset, get_metrics=True)
+                    dev_results.append((lcodes, predicted_scores, pearson, mse))
+                    total_pearson += pearson
+                    total += 1
 
-            avg_pearson = total_pearson/total
-            if avg_pearson > best_eval:
-                best_eval = avg_pearson
-                print()
-                for lcodes, predicted_scores, _, _ in dev_results:
-                    best_dev_file = args.output_prefix + ".%s%s.dev.best.scores"%lcodes
-                    print("Saving best dev results to: %s" % best_dev_file)
-                    with open(best_dev_file, "w") as fout:
-                        for score in predicted_scores:
-                            print(score, file=fout)
+                avg_pearson = total_pearson/total
+                if avg_pearson > best_eval:
+                    best_eval = avg_pearson
+                    print()
+                    for lcodes, predicted_scores, _, _ in dev_results:
+                        best_dev_file = args.output_prefix + ".%s%s.dev.best.scores"%lcodes
+                        print("Saving best dev results to: %s" % best_dev_file)
+                        with open(best_dev_file, "w") as fout:
+                            for score in predicted_scores:
+                                print(score, file=fout)
 
-                test_results = []
-                print("\nCalculating results on test set(s)...")
-                for lcodes, test_dataset in test_datasets:
-                    predicted_scores, _, _ =  eval(test_dataset)
-                    test_results.append((lcodes, predicted_scores))
+                    test_results = []
+                    print("\nCalculating results on test set(s)...")
+                    for lcodes, test_dataset in test_datasets:
+                        predicted_scores, _, _ =  eval(test_dataset)
+                        test_results.append((lcodes, predicted_scores))
 
-                for lcodes, predicted_scores in test_results:
-                    best_test_file = args.output_prefix + ".%s%s.test.best.scores"%lcodes
-                    print("Saving best test results to: %s" % best_test_file)
-                    with open(best_test_file, "w") as fout:
-                        for score in predicted_scores:
-                            print(score, file=fout)
-                early_stop = 0
-            else:
-                early_stop += 1
+                    for lcodes, predicted_scores in test_results:
+                        best_test_file = args.output_prefix + ".%s%s.test.best.scores"%lcodes
+                        print("Saving best test results to: %s" % best_test_file)
+                        with open(best_test_file, "w") as fout:
+                            for score in predicted_scores:
+                                print(score, file=fout)
+                    early_stop = 0
+                else:
+                    early_stop += 1
 
-            log = "Epoch %s Global steps: %s Train loss: %.4f\n" %(epoch, global_steps, total_loss/total_batches)
-            #reset total loss 
-            total_loss, total_batches = 0, 0
-            for lcodes, _, pearson, mse in dev_results:
-                log +="%s-%s Dev loss: %.4f r:%.4f\n" % (lcodes[0], lcodes[1], mse, pearson)
-            log +="Current avg r:%.4f Best avg r: %.4f" % (avg_pearson, best_eval)
-            print(log)
-            print(log, file=flog)
+                log = "Epoch %s Global steps: %s Train loss: %.4f\n" %(epoch, global_steps, total_loss/total_batches)
+                #reset total loss 
+                total_loss, total_batches = 0, 0
+                for lcodes, _, pearson, mse in dev_results:
+                    log +="%s-%s Dev loss: %.4f r:%.4f\n" % (lcodes[0], lcodes[1], mse, pearson)
+                log +="Current avg r:%.4f Best avg r: %.4f" % (avg_pearson, best_eval)
+                print(log)
+                print(log, file=flog)
         if early_stop > 25:
             break
     if early_stop > 25:
