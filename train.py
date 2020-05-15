@@ -19,6 +19,7 @@ parser.add_argument('--model', default="bert")
 parser.add_argument('--output_prefix', required=True)
 parser.add_argument('--use_word_probs', nargs="?", const=True, default=False)
 parser.add_argument('--encode_separately', nargs="?", const=True, default=False)
+parser.add_argument('--num_gpus', type=int, default=1)
 args = parser.parse_args()
 print(args)
 
@@ -30,33 +31,44 @@ if args.model.lower() == "xlm":
     model_name = "xlm-mlm-100-1280"
     model_dim = 1280
     learning_rate = 1e-6
-    batch_size = 6
-    eval_interval = 200
-    accum_grad = 2
+    batch_size = 6 * args.num_gpus
+    eval_interval = 100
+    accum_grad = 1
 elif args.model.lower() == "xlm_roberta":
     model_name = "xlm-roberta-base"
     model_dim=  768
     learning_rate = 1e-6
-    batch_size = 16
+    batch_size = 16 * args.num_gpus
+    eval_interval = 100
+    accum_grad = 1
+elif args.model.lower() == "xlm_roberta_large":
+    model_name = "xlm-roberta-large"
+    model_dim=  1280
+    learning_rate = 1e-6
+    batch_size = 6 * args.num_gpus
     eval_interval = 100
     accum_grad = 1
 else:
     model_name = "bert-base-multilingual-cased"
     model_dim = 768
     learning_rate = 1e-6
-    batch_size = 16
+    batch_size = 16 * args.num_gpus
     eval_interval = 100
     accum_grad = 1
     if args.use_word_probs:
         batch_size = 12
 
 #load model and optimizer
-gpu="cuda:0" if torch.cuda.is_available() else "cpu"
+gpu=torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 transformer = AutoModel.from_pretrained(model_name)
 
-model = QE(transformer, model_dim, use_word_probs = args.use_word_probs, encode_separately=args.encode_separately).to(gpu)
+model = QE(transformer, model_dim, use_word_probs = args.use_word_probs, encode_separately=args.encode_separately)
+if torch.cuda.device_count() > 1:
+    model = nn.DataParallel(model)
+model = model.to(gpu)
 model.train()
+
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 loss_fn = torch.nn.MSELoss()
 
@@ -115,7 +127,7 @@ global_steps = 0
 best_eval = 0
 early_stop = 0
 accum_counter = 0
-for epoch in range(20):
+for epoch in range(50):
     print("Epoch ", epoch)
     total_loss = 0
     total_batches = 0
