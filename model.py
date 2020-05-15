@@ -15,7 +15,8 @@ class QE(nn.Module):
 
         if self.use_word_probs:
             self.wp_ff = nn.Sequential(nn.Linear(self.dim+1, self.dim), nn.ReLU())
-            self.wp_transformer = nn.ModuleList([torch.nn.TransformerEncoderLayer(self.dim, nhead=12) for _ in range(3)])
+            nhead = 12 if self.dim % 12 == 0 else 16
+            self.wp_transformer = nn.ModuleList([torch.nn.TransformerEncoderLayer(self.dim, nhead=nhead) for _ in range(3)])
 
         self.ff = nn.Sequential(nn.Linear(self.bert_output_dim, 4*self.dim), 
                                 nn.ReLU(),
