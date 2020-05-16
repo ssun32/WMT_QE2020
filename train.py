@@ -45,8 +45,8 @@ elif args.model.lower() == "xlm_roberta_large":
     model_name = "xlm-roberta-large"
     model_dim=  1024
     learning_rate = 1e-6
-    batch_size = 6 * args.num_gpus
-    eval_interval = 100
+    batch_size = 8 * args.num_gpus
+    eval_interval = 800
     accum_grad = 1
 else:
     model_name = "bert-base-multilingual-cased"
@@ -80,7 +80,7 @@ train_dataset = QEDataset(train_file, train_mt_file, train_wp_file, score_field=
 
 
 if src_lcode == "all":
-    lcodes = [("en","de"),("en","zh"),("ro","en"),("et","en"),("si","en"),("ne","en")]
+    lcodes = [("en","de"),("en","zh"),("ro","en"),("et","en"),("si","en"),("ne","en"), ("ru", "en")]
 else:
     lcodes = [(src_lcode, tgt_lcode)]
 
@@ -139,6 +139,7 @@ for epoch in range(50):
 
         #drop batch with nan
         if torch.isnan(outputs).any():
+            del batch, wps, labels, outputs
             continue
 
         loss = loss_fn(outputs.squeeze(), labels)
@@ -146,7 +147,8 @@ for epoch in range(50):
         total_loss += loss.item() * cur_batch_size
         total_batches += cur_batch_size
         loss.backward()
-        del loss
+        del batch, wps, labels, outputs, loss
+
         accum_counter += 1
 
         if accum_counter % accum_grad == 0:

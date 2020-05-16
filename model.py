@@ -11,12 +11,14 @@ class QE(nn.Module):
         self.use_word_probs=use_word_probs
         self.encode_separately=encode_separately
 
+        self.num_transformer_layers = 1
+
         self.bert_output_dim = self.dim if not self.encode_separately else 2 * self.dim
 
         if self.use_word_probs:
             self.wp_ff = nn.Sequential(nn.Linear(self.dim+1, self.dim), nn.ReLU())
             nhead = 12 if self.dim % 12 == 0 else 16
-            self.wp_transformer = nn.ModuleList([torch.nn.TransformerEncoderLayer(self.dim, nhead=nhead) for _ in range(3)])
+            self.wp_transformer = nn.ModuleList([torch.nn.TransformerEncoderLayer(self.dim, nhead=nhead) for _ in range(self.num_transformer_layers)])
 
         self.ff = nn.Sequential(nn.Linear(self.bert_output_dim, 4*self.dim), 
                                 nn.ReLU(),
@@ -31,8 +33,7 @@ class QE(nn.Module):
             tgt_encodings = self.transformer(**tgt_batch)[0]
             if self.use_word_probs:
                 tgt_encodings_wp = self.wp_ff(torch.cat([tgt_encodings, wp.unsqueeze(-1)], dim=-1)).permute(1, 0, 2)
-                #apply 3 layers of transformer with 12 heads
-                for i in range(3):
+                for i in range(self.num_transformer_layers):
                     tgt_encodings_wp = self.wp_transformer[i](tgt_encodings_wp, src_key_padding_mask = tgt_batch["attention_mask"]==1)
                 tgt_encodings = tgt_encodings_wp.permute(1, 0, 2)
 
@@ -42,7 +43,7 @@ class QE(nn.Module):
             joint_encodings = self.transformer(**input[0])[0]
             if self.use_word_probs:
                 joint_encodings_wp = self.wp_ff(torch.cat([joint_encodings, wp.unsqueeze(-1)], dim=-1)).permute(1, 0, 2)
-                for i in range(3):
+                for i in range(self.num_transformer_layers):
                     joint_encodings_wp = self.wp_transformer[i](joint_encodings_wp, src_key_padding_mask = input[0]["attention_mask"]==1)
                 joint_encodings = joint_encodings_wp.permute(1,0,2)
             encodings = joint_encodings[:,0,:]
