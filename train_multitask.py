@@ -11,6 +11,7 @@ from glob import glob
 from tqdm import tqdm
 import argparse
 
+torch.backends.cudnn.benchmark = True
 #arguments
 parser = argparse.ArgumentParser()
 parser.add_argument('--model', default="bert")
@@ -21,7 +22,8 @@ args = parser.parse_args()
 print(args)
 
 #model specific configuration
-warmup_steps = 5000
+warmup_steps=6000
+accum_grad = 1
 if args.model.lower() == "xlm":
     model_name = "xlm-mlm-100-1280"
     model_dim = 1280
@@ -40,8 +42,9 @@ elif args.model.lower() == "xlm_roberta_large":
     model_name = "xlm-roberta-large"
     model_dim=  1024
     learning_rate = 1e-6
-    batch_size = 8 * args.num_gpus
+    batch_size = 4 * args.num_gpus
     eval_interval = 500
+    accum_grad = 4
 else:
     model_name = "bert-base-multilingual-cased"
     model_dim = 768
@@ -90,8 +93,6 @@ optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 if torch.cuda.device_count() > 1:
     model = nn.DataParallel(model)
 model = model.to(gpu)
-#move mlp layers to cpu
-model.mlp_layers = model.mlp_layers.to("cpu")
 
 loss_fn = torch.nn.MSELoss()
 
@@ -102,7 +103,6 @@ def eval(dataset, lcode, get_metrics=False):
     with torch.no_grad():
         model.eval()
         module_lcode = "_".join(lcode)
-        model.mlp_layers[module_lcode] = model.mlp_layers[module_lcode].to(gpu)
 
         predicted_scores, actual_scores = [], []
         for batch, wps, z_scores, _ in tqdm(DataLoader(dataset, batch_size=batch_size, collate_fn=partial(collate_fn, tokenizer=tokenizer, use_word_probs = args.use_word_probs), shuffle=False)):
@@ -110,7 +110,7 @@ def eval(dataset, lcode, get_metrics=False):
             wps = wps.to(gpu) if wps is not None else wps
 
             #force nan to be 0, this deals with bad inputs from si-en dataset
-            z_score_outputs = model(batch, wps, lcode)
+            z_score_outputs, _ = model(batch, wps, lcode)
             z_score_outputs[torch.isnan(z_score_outputs)] = 0 
             predicted_scores += z_score_outputs.flatten().tolist()
             actual_scores += z_scores
@@ -122,9 +122,8 @@ def eval(dataset, lcode, get_metrics=False):
         else:
             pearson, mse = None, None
             
-            del batch, wps, z_score_outputs
+        del batch, wps, z_score_outputs
 
-        model.mlp_layers[module_lcode] = model.mlp_layers[module_lcode].to("cpu")
         model.train()
         return predicted_scores, pearson, mse
 
@@ -136,38 +135,41 @@ for epoch in range(50):
     print("Epoch ", epoch)
     total_loss = 0
     total_batches = 0
-    train_dataset = QEDatasetRoundRobin(train_file_list, train_mt_file_list, train_wp_file_list, batch_size, collate_fn)
+    train_dataset = QEDatasetRoundRobin(train_file_list, train_mt_file_list, train_wp_file_list, batch_size, collate_fn, accum_grad=accum_grad)
 
-    for cur_lcode, (batch, wps, z_scores, da_scores) in tqdm(train_dataset):
-        global_steps += 1
+    for cur_lcode, backprop, (batch, wps, z_scores, da_scores) in tqdm(train_dataset):
         module_lcode = "_".join(cur_lcode)
-        model.mlp_layers[module_lcode] = model.mlp_layers[module_lcode].to(gpu)
         batch = [{k: v.to(gpu) for k, v in b.items()} for b in batch]
         wps = wps.to(gpu) if wps is not None else wps
         z_scores = torch.tensor(z_scores).to(gpu)
-        z_score_outputs = model(batch, wps, cur_lcode)
+        z_score_outputs, joint_output = model(batch, wps, cur_lcode)
 
         #drop batch with nan
         if torch.isnan(z_score_outputs).any():
+            if backprop:
+                model.zero_grad()
             del batch, wps, z_scores, z_score_outputs
-            model.mlp_layers[module_lcode] = model.mlp_layers[module_lcode].to("cpu")
             continue
 
         loss = loss_fn(z_score_outputs.squeeze(), z_scores)
+        if module_lcode != "all_all":
+            loss += loss_fn(joint_output.squeeze(), z_scores)
         cur_batch_size = z_score_outputs.size(0)
 
         total_loss += loss.item() * cur_batch_size
         total_batches += cur_batch_size
 
         #back prob
-        loss.backward()
+        #if global_steps % accum_grad == 0:
+        if backprop:
+            loss.backward()
+            optimizer.step()
+            model.zero_grad()
+            global_steps += 1
+
         del batch, wps, z_scores, z_score_outputs, loss
-        model.mlp_layers["_".join(module_lcode)] = model.mlp_layers[module_lcode].to("cpu")
 
-        optimizer.step()
-        optimizer.zero_grad()
-
-        if global_steps % eval_interval == 0 and global_steps > warmup_steps:
+        if backprop and global_steps % eval_interval == 0 and global_steps > warmup_steps:
             #eval on per_lang MLP layer
             for (lcode, dev_dataset), (_, test_dataset) in zip(dev_datasets, test_datasets):
                 predicted_scores, pearson, mse =  eval(dev_dataset, lcode, get_metrics=True)
@@ -230,7 +232,7 @@ for epoch in range(50):
             log +="Current avg r:%.4f Best avg r: %.4f" % (avg_pearson, best_eval)
             print(log)
             print(log, file=flog)
-        if early_stop > 25:
+        if early_stop > 200:
             break
-    if early_stop > 25:
+    if early_stop > 200:
         break

@@ -1,5 +1,7 @@
 import torch
+from collections import defaultdict
 from torch.utils.data import Dataset, DataLoader
+from tqdm import tqdm
 
 def get_wp_matrix(ids, mts, wps, tokenizer, target_only=False):
     wp_matrix = []
@@ -146,7 +148,8 @@ class QEDataset(Dataset):
                     mean_score = None if "mean" not in header else float(items[header["mean"]])/100
                     zmean_score = None if "z_mean" not in header else float(items[header["z_mean"]])
 
-                    dataset.append({"source": items[header["original"]],
+                    dataset.append({
+                                   "source": items[header["original"]],
                                    "target": items[header["translation"]],
                                    "da_score": mean_score,
                                    "z_score": zmean_score})
@@ -154,6 +157,13 @@ class QEDataset(Dataset):
             for i, (l, l2) in enumerate(zip(open(mtp), open(wpp))):
                dataset[i]["mt"] = l.strip().split()
                dataset[i]["wp"] = l2.strip().split()
+
+
+            #random 50%
+            #import random
+            #random.seed(12345)
+            #if len(dataset) > 1000:
+            #    dataset = random.sample(dataset, int(len(dataset)/2))
             self.datasets += dataset
 
     def __len__(self):
@@ -163,26 +173,52 @@ class QEDataset(Dataset):
         return self.datasets[index]
 
 class QEDatasetRoundRobin(object):
-    def __init__(self, filepath, mt_filepath, wp_filepath, batch_size, collate_fn):
-        self.datasets = []
+    def __init__(self, filepath, mt_filepath, wp_filepath, batch_size, collate_fn, accum_grad=1):
+        self.all_datasets = None
+        self.plc_datasets = []
+        self.accum_grad = accum_grad
 
         for fp, mtp, wpp in zip(filepath, mt_filepath, wp_filepath):
-            if len(mtp) > 2:
-                lcodes = ("all", "all")
-            else:
-                lcodes = mtp[-1].split(".")[-1]
-                lcodes = (lcodes[:2], lcodes[2:])
             dataloader = DataLoader(QEDataset(fp, mtp, wpp), 
                                     batch_size=batch_size, 
                                     collate_fn=collate_fn, 
                                     shuffle=True)
-            self.datasets.append((lcodes, iter(dataloader)))
+
+            if len(mtp) > 2:
+                lcode = ("all", "all")
+                self.all_datasets = iter(dataloader)
+            else:
+                lcode = mtp[-1].split(".")[-1]
+                lcode = (lcode[:2], lcode[2:])
+                self.plc_datasets.append((lcode, iter(dataloader)))
+
 
     def __iter__(self):
-        iterator_ended = False
-        while not iterator_ended:
-            for lcodes, dataloader in self.datasets:
+        all_iterator_ended = False
+        plc_iterator_ended = 0
+        cur_plc_dataset = 0
+        while not all_iterator_ended and plc_iterator_ended < len(self.plc_datasets):
+            all_tmp = []
+            plc_tmp = []
+            cur_lcode = self.plc_datasets[cur_plc_dataset][0]
+            for i in range(self.accum_grad):
                 try:
-                    yield lcodes, next(dataloader)
+                    plc_tmp.append(next(self.plc_datasets[cur_plc_dataset][-1]))
                 except StopIteration:
-                    iterator_ended = True
+                    plc_iterator_ended += 1
+                    break
+                try:
+                    all_tmp.append(next(self.all_datasets))
+                except StopIteration:
+                    all_iterator_ended = True
+
+            for i, batch in enumerate(all_tmp):
+                backprop = i==len(all_tmp)-1
+                yield ("all", "all"), backprop, batch
+            for i, batch in enumerate(plc_tmp):
+                backprop = i==len(plc_tmp)-1
+                yield cur_lcode, backprop, batch
+
+            cur_plc_dataset += 1
+            if cur_plc_dataset == len(self.plc_datasets):
+                cur_plc_dataset = 0

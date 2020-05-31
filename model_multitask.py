@@ -32,4 +32,10 @@ class QE(nn.Module):
                 joint_encodings_wp = self.wp_transformer[i](joint_encodings_wp, src_key_padding_mask = input[0]["attention_mask"]==1)
             joint_encodings = joint_encodings_wp.permute(1,0,2)
         encodings = joint_encodings[:,0,:]
-        return self.mlp_layers[lcode](encodings)
+
+        mlp_output = self.mlp_layers[lcode](encodings)
+
+        if lcode != "all_all":
+            return mlp_output, (mlp_output + self.mlp_layers["all_all"](encodings))/2
+        else:
+            return mlp_output, None
