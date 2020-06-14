@@ -1,0 +1,54 @@
+{
+    "epochs": 20,
+    "model_name": "bert-base-multilingual-cased",
+    "model_dim": 768,
+    "learning_rate": 1e-06,
+    "batch_size_per_gpu": 8,
+    "accum_grad": 1,
+    "eval_interval": 100,
+    "use_word_probs": false,
+    "use_secondary_loss": false,
+    "train": [
+        {
+            "id": "ne_en",
+            "tsv_file": [
+                "data/ne-en/train.neen.df.short.tsv"
+            ],
+            "mt_file": [
+                "data/ne-en/word-probas/mt.train.neen"
+            ],
+            "wp_file": [
+                "data/ne-en/word-probas/word_probas.train.neen"
+            ]
+        }
+    ],
+    "dev": [
+        {
+            "id": "ne_en",
+            "tsv_file": [
+                "data/ne-en/dev.neen.df.short.tsv"
+            ],
+            "mt_file": [
+                "data/ne-en/word-probas/mt.dev.neen"
+            ],
+            "wp_file": [
+                "data/ne-en/word-probas/word_probas.dev.neen"
+            ]
+        }
+    ],
+    "test": [
+        {
+            "id": "ne_en",
+            "tsv_file": [
+                "data/ne-en/test20.neen.df.short.tsv"
+            ],
+            "mt_file": [
+                "data/ne-en/word-probas/mt.test20.neen"
+            ],
+            "wp_file": [
+                "data/ne-en/word-probas/word_probas.test20.neen"
+            ]
+        }
+    ],
+    "output_dir": "experiments/H1/ne_en/run3/"
+}

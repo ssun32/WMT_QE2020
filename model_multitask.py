@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 class QE(nn.Module):
-    def __init__(self, transformer, dim, lcodes, use_word_probs=False):
+    def __init__(self, transformer, dim, ids, use_word_probs=False):
         super(QE, self).__init__()
         self.dim = dim
         self.transformer = transformer
@@ -16,15 +16,14 @@ class QE(nn.Module):
             nhead = 12 if self.dim % 12 == 0 else 16
             self.wp_transformer = nn.ModuleList([torch.nn.TransformerEncoderLayer(self.dim, nhead=nhead) for _ in range(self.num_transformer_layers)])
 
-        self.mlp_layers = nn.ModuleDict({"_".join(lcode):nn.Sequential(
+        self.mlp_layers = nn.ModuleDict({id:nn.Sequential(
                                             nn.Linear(self.dim, 4*self.dim), 
                                             nn.ReLU(),
                                             nn.Dropout(0.1),
                                             nn.Linear(4*self.dim, 1))
-                                            for lcode in [("all", "all")] + lcodes})
+                                            for id in ids})
 
-    def forward(self, input, wp, lcode):
-        lcode = "_".join(lcode)
+    def forward(self, input, wp, id):
         joint_encodings = self.transformer(**input[0])[0]
         if self.use_word_probs:
             joint_encodings_wp = self.wp_ff(torch.cat([joint_encodings, wp.unsqueeze(-1)], dim=-1)).permute(1, 0, 2)
@@ -33,9 +32,9 @@ class QE(nn.Module):
             joint_encodings = joint_encodings_wp.permute(1,0,2)
         encodings = joint_encodings[:,0,:]
 
-        mlp_output = self.mlp_layers[lcode](encodings)
+        mlp_output = self.mlp_layers[id](encodings)
 
-        if lcode != "all_all":
-            return mlp_output, (mlp_output + self.mlp_layers["all_all"](encodings))/2
+        if id != "all":
+            return mlp_output, (mlp_output + self.mlp_layers["all"](encodings))/2
         else:
             return mlp_output, None

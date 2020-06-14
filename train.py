@@ -1,11 +1,14 @@
 import sys
+import os
+import json
 import torch
 import math
+import logging
 import numpy as np
 from data import QEDataset, collate_fn
 from model import QE
 from torch.utils.data import DataLoader
-from transformers import AutoTokenizer, AutoModel, AdamW, get_linear_schedule_with_warmup
+from transformers import AutoTokenizer, AutoModel
 from functools import partial
 from scipy.stats import pearsonr
 from glob import glob
@@ -14,54 +17,24 @@ import argparse
 
 #arguments
 parser = argparse.ArgumentParser()
-parser.add_argument('--src', default="en")
-parser.add_argument('--tgt', default="de")
-parser.add_argument('--model', default="bert")
-parser.add_argument('--output_prefix', required=True)
-parser.add_argument('--use_word_probs', nargs="?", const=True, default=False)
-parser.add_argument('--encode_separately', nargs="?", const=True, default=False)
-parser.add_argument('--use_secondary_loss', nargs="?", const=True, default=False)
+parser.add_argument('--config_file', required=True)
 parser.add_argument('--num_gpus', type=int, default=1)
 args = parser.parse_args()
 print(args)
 
-src_lcode = args.src
-tgt_lcode = args.tgt
+with open(args.config_file) as fjson:
+    config = json.load(fjson)
 
-epochs = 20
-#model specific configuration
-if args.model.lower() == "xlm":
-    model_name = "xlm-mlm-100-1280"
-    model_dim = 1280
-    learning_rate = 1e-6
-    batch_size = 6 * args.num_gpus
-    eval_interval = 100
-    accum_grad = 1
-elif args.model.lower() == "xlm_roberta":
-    model_name = "xlm-roberta-base"
-    model_dim=  768
-    learning_rate = 1e-6
-    batch_size = 16 * args.num_gpus
-    eval_interval = 100
-    accum_grad = 1
-elif args.model.lower() == "xlm_roberta_large":
-    model_name = "xlm-roberta-large"
-    model_dim=  1024
-    learning_rate = 1e-6
-    batch_size = 8 * args.num_gpus
-    eval_interval = 100
-    if src_lcode == "all":
-        eval_interval=600
-    accum_grad = 1
-else:
-    model_name = "bert-base-multilingual-cased"
-    model_dim = 768
-    learning_rate = 1e-6
-    batch_size = 16 * args.num_gpus
-    eval_interval = 100
-    accum_grad = 1
-    if args.use_word_probs:
-        batch_size = 12
+#get parameters from config file
+model_name = config["model_name"]
+model_dim = config["model_dim"]
+learning_rate= config["learning_rate"]
+epochs = config["epochs"]
+batch_size = config["batch_size_per_gpu"] * args.num_gpus
+use_word_probs = config["use_word_probs"]
+use_secondary_loss = config["use_secondary_loss"]
+accum_grad = config["accum_grad"]
+eval_interval = config["eval_interval"]
 
 #load model and optimizer
 gpu=torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -70,49 +43,46 @@ transformer = AutoModel.from_pretrained(model_name)
 
 model = QE(transformer, 
         model_dim, 
-        use_word_probs = args.use_word_probs, 
-        encode_separately=args.encode_separately,
-        use_secondary_loss=args.use_secondary_loss)
+        use_word_probs = config["use_word_probs"], 
+        use_secondary_loss=config["use_secondary_loss"])
 
 if torch.cuda.device_count() > 1:
-    model = nn.DataParallel(model)
+    model = torch.nn.DataParallel(model)
 model = model.to(gpu)
 model.train()
 
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 loss_fn = torch.nn.MSELoss()
 
-filedir = "data/%s-%s"%(src_lcode, tgt_lcode) if src_lcode != "all" else "data/*"
-train_file = glob("%s/train*.tsv" % filedir)
-train_mt_file = glob("%s/word-probas/mt.train*" % filedir)
-train_wp_file = glob("%s/word-probas/word_probas.train*" % filedir)
+train = config["train"][0]
+train_file = train["tsv_file"]
+train_mt_file = train["mt_file"]
+train_wp_file = train["wp_file"]
 train_dataset = QEDataset(train_file, train_mt_file, train_wp_file)
 
-if src_lcode == "all":
-    lcodes = [("en","de"),("en","zh"),("ro","en"),("et","en"),("si","en"),("ne","en"), ("ru", "en")]
-else:
-    lcodes = [(src_lcode, tgt_lcode)]
-
 dev_datasets, test_datasets = [], []
-for src_lcode, tgt_lcode in lcodes:
-    filedir = "data/%s-%s"%(src_lcode, tgt_lcode)
-    dev_file = glob("%s/dev*.tsv" % filedir)
-    dev_mt_file = glob("%s/word-probas/mt.dev*" % filedir)
-    dev_wp_file = glob("%s/word-probas/word_probas.dev*" % filedir)
-    dev_datasets.append(((src_lcode, tgt_lcode), QEDataset(dev_file, dev_mt_file, dev_wp_file)))
+for dev, test in zip(config["dev"], config["test"]):
+    dev_file = dev["tsv_file"]
+    dev_mt_file = dev["mt_file"]
+    dev_wp_file = dev["wp_file"]
+    dev_datasets.append((dev["id"], QEDataset(dev_file, dev_mt_file, dev_wp_file)))
 
-    test_file = glob("%s/test20*.tsv" % filedir)
-    test_mt_file = glob("%s/word-probas/mt.test20*" % filedir)
-    test_wp_file = glob("%s/word-probas/word_probas.test20*" % filedir)
-    test_datasets.append(((src_lcode, tgt_lcode), QEDataset(test_file, test_mt_file, test_wp_file)))
+    test_file = test["tsv_file"]
+    test_mt_file = test["mt_file"]
+    test_wp_file = test["wp_file"]
+    test_datasets.append((test["id"], QEDataset(test_file, test_mt_file, test_wp_file)))
 
-log_file = args.output_prefix + ".log"
-flog = open(log_file, "w")
+log_file = config["output_dir"] + "log"
+logging.basicConfig(filename=log_file,
+                            filemode='a',
+                            format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
+                            datefmt='%H:%M:%S',
+                            level=logging.DEBUG)
 
 def eval(dataset, get_metrics=False):
     model.eval()
     predicted_scores, actual_scores = [], []
-    for batch, wps, z_scores, _ in tqdm(DataLoader(dataset, batch_size=batch_size, collate_fn=partial(collate_fn, tokenizer=tokenizer, use_word_probs = args.use_word_probs, encode_separately=args.encode_separately), shuffle=False)):
+    for batch, wps, z_scores, _ in tqdm(DataLoader(dataset, batch_size=batch_size, collate_fn=partial(collate_fn, tokenizer=tokenizer, use_word_probs = use_word_probs), shuffle=False)):
         batch = [{k: v.to(gpu) for k, v in b.items()} for b in batch]
         wps = wps.to(gpu) if wps is not None else wps
 
@@ -139,7 +109,7 @@ for epoch in range(epochs):
     print("Epoch ", epoch)
     total_loss = 0
     total_batches = 0
-    for batch, wps, z_scores, da_scores in tqdm(DataLoader(train_dataset, batch_size=batch_size, collate_fn=partial(collate_fn, tokenizer=tokenizer, use_word_probs=args.use_word_probs, encode_separately=args.encode_separately), shuffle=True)):
+    for batch, wps, z_scores, da_scores in tqdm(DataLoader(train_dataset, batch_size=batch_size, collate_fn=partial(collate_fn, tokenizer=tokenizer, use_word_probs=use_word_probs), shuffle=True)):
         batch = [{k: v.to(gpu) for k, v in b.items()} for b in batch]
         wps = wps.to(gpu) if wps is not None else wps
         z_scores = torch.tensor(z_scores).to(gpu)
@@ -153,12 +123,11 @@ for epoch in range(epochs):
             del batch, wps, z_scores, da_scores, z_score_outputs, da_score_outputs
             continue
 
-
         loss = loss_fn(z_score_outputs.squeeze(), z_scores)
         cur_batch_size = z_score_outputs.size(0)
 
         #if we are using a secondary loss
-        if args.use_secondary_loss:
+        if use_secondary_loss:
             da_scores = torch.tensor(da_scores).to(gpu)
             loss += loss_fn(da_score_outputs.squeeze(), da_scores)
 
@@ -178,9 +147,9 @@ for epoch in range(epochs):
                 dev_results = []
                 total_pearson, total = 0, 0
                 print("\nCalculating results on dev set(s)...")
-                for lcodes, dev_dataset in dev_datasets:
+                for id, dev_dataset in dev_datasets:
                     predicted_scores, pearson, mse =  eval(dev_dataset, get_metrics=True)
-                    dev_results.append((lcodes, predicted_scores, pearson, mse))
+                    dev_results.append((id, predicted_scores, pearson, mse))
                     total_pearson += pearson
                     total += 1
 
@@ -188,8 +157,8 @@ for epoch in range(epochs):
                 if avg_pearson > best_eval:
                     best_eval = avg_pearson
                     print()
-                    for lcodes, predicted_scores, _, _ in dev_results:
-                        best_dev_file = args.output_prefix + ".%s%s.dev.best.scores"%lcodes
+                    for id, predicted_scores, _, _ in dev_results:
+                        best_dev_file = os.path.join(config["output_dir"], "%s.dev.best.scores"%id)
                         print("Saving best dev results to: %s" % best_dev_file)
                         with open(best_dev_file, "w") as fout:
                             for score in predicted_scores:
@@ -202,7 +171,8 @@ for epoch in range(epochs):
                         test_results.append((lcodes, predicted_scores))
 
                     for lcodes, predicted_scores in test_results:
-                        best_test_file = args.output_prefix + ".%s%s.test.best.scores"%lcodes
+                        best_test_file = os.path.join(config["output_dir"], "%s.test.best.scores"%id)
+
                         print("Saving best test results to: %s" % best_test_file)
                         with open(best_test_file, "w") as fout:
                             for score in predicted_scores:
@@ -214,11 +184,10 @@ for epoch in range(epochs):
                 log = "Epoch %s Global steps: %s Train loss: %.4f\n" %(epoch, global_steps, total_loss/total_batches)
                 #reset total loss 
                 total_loss, total_batches = 0, 0
-                for lcodes, _, pearson, mse in dev_results:
-                    log +="%s-%s Dev loss: %.4f r:%.4f\n" % (lcodes[0], lcodes[1], mse, pearson)
+                for id, _, pearson, mse in dev_results:
+                    log +="%s Dev loss: %.4f r:%.4f\n" % (id, mse, pearson)
                 log +="Current avg r:%.4f Best avg r: %.4f" % (avg_pearson, best_eval)
-                print(log)
-                print(log, file=flog)
+                logging.info(log)
         if early_stop > 25:
             break
     if early_stop > 25:

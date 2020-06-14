@@ -1,0 +1,201 @@
+{
+    "epochs": 20,
+    "model_name": "bert-base-multilingual-cased",
+    "model_dim": 768,
+    "learning_rate": 1e-06,
+    "batch_size_per_gpu": 8,
+    "accum_grad": 1,
+    "eval_interval": 600,
+    "use_word_probs": false,
+    "use_secondary_loss": false,
+    "train": [
+        {
+            "id": "all",
+            "tsv_file": [
+                "data/en-de/train.ende.df.short.tsv",
+                "data/en-zh/train.enzh.df.short.tsv",
+                "data/ro-en/train.roen.df.short.tsv",
+                "data/et-en/train.eten.df.short.tsv",
+                "data/si-en/train.sien.df.short.tsv",
+                "data/ru-en/train.ruen.df.short.tsv"
+            ],
+            "mt_file": [
+                "data/en-de/word-probas/mt.train.ende",
+                "data/en-zh/word-probas/mt.train.enzh",
+                "data/ro-en/word-probas/mt.train.roen",
+                "data/et-en/word-probas/mt.train.eten",
+                "data/si-en/word-probas/mt.train.sien",
+                "data/ru-en/word-probas/mt.train.ruen"
+            ],
+            "wp_file": [
+                "data/en-de/word-probas/word_probas.train.ende",
+                "data/en-zh/word-probas/word_probas.train.enzh",
+                "data/ro-en/word-probas/word_probas.train.roen",
+                "data/et-en/word-probas/word_probas.train.eten",
+                "data/si-en/word-probas/word_probas.train.sien",
+                "data/ru-en/word-probas/word_probas.train.ruen"
+            ]
+        },
+        {
+            "id": "en_de",
+            "tsv_file": [
+                "data/en-de/train.ende.df.short.tsv"
+            ],
+            "mt_file": [
+                "data/en-de/word-probas/mt.train.ende"
+            ],
+            "wp_file": [
+                "data/en-de/word-probas/word_probas.train.ende"
+            ]
+        },
+        {
+            "id": "en_zh",
+            "tsv_file": [
+                "data/en-zh/train.enzh.df.short.tsv"
+            ],
+            "mt_file": [
+                "data/en-zh/word-probas/mt.train.enzh"
+            ],
+            "wp_file": [
+                "data/en-zh/word-probas/word_probas.train.enzh"
+            ]
+        },
+        {
+            "id": "ro_en",
+            "tsv_file": [
+                "data/ro-en/train.roen.df.short.tsv"
+            ],
+            "mt_file": [
+                "data/ro-en/word-probas/mt.train.roen"
+            ],
+            "wp_file": [
+                "data/ro-en/word-probas/word_probas.train.roen"
+            ]
+        },
+        {
+            "id": "et_en",
+            "tsv_file": [
+                "data/et-en/train.eten.df.short.tsv"
+            ],
+            "mt_file": [
+                "data/et-en/word-probas/mt.train.eten"
+            ],
+            "wp_file": [
+                "data/et-en/word-probas/word_probas.train.eten"
+            ]
+        },
+        {
+            "id": "si_en",
+            "tsv_file": [
+                "data/si-en/train.sien.df.short.tsv"
+            ],
+            "mt_file": [
+                "data/si-en/word-probas/mt.train.sien"
+            ],
+            "wp_file": [
+                "data/si-en/word-probas/word_probas.train.sien"
+            ]
+        },
+        {
+            "id": "ru_en",
+            "tsv_file": [
+                "data/ru-en/train.ruen.df.short.tsv"
+            ],
+            "mt_file": [
+                "data/ru-en/word-probas/mt.train.ruen"
+            ],
+            "wp_file": [
+                "data/ru-en/word-probas/word_probas.train.ruen"
+            ]
+        }
+    ],
+    "dev": [
+        {
+            "id": "en_de",
+            "tsv_file": [
+                "data/en-de/dev.ende.df.short.tsv"
+            ],
+            "mt_file": [
+                "data/en-de/word-probas/mt.dev.ende"
+            ],
+            "wp_file": [
+                "data/en-de/word-probas/word_probas.dev.ende"
+            ]
+        },
+        {
+            "id": "en_zh",
+            "tsv_file": [
+                "data/en-zh/dev.enzh.df.short.tsv"
+            ],
+            "mt_file": [
+                "data/en-zh/word-probas/mt.dev.enzh"
+            ],
+            "wp_file": [
+                "data/en-zh/word-probas/word_probas.dev.enzh"
+            ]
+        },
+        {
+            "id": "ro_en",
+            "tsv_file": [
+                "data/ro-en/dev.roen.df.short.tsv"
+            ],
+            "mt_file": [
+                "data/ro-en/word-probas/mt.dev.roen"
+            ],
+            "wp_file": [
+                "data/ro-en/word-probas/word_probas.dev.roen"
+            ]
+        },
+        {
+            "id": "et_en",
+            "tsv_file": [
+                "data/et-en/dev.eten.df.short.tsv"
+            ],
+            "mt_file": [
+                "data/et-en/word-probas/mt.dev.eten"
+            ],
+            "wp_file": [
+                "data/et-en/word-probas/word_probas.dev.eten"
+            ]
+        },
+        {
+            "id": "si_en",
+            "tsv_file": [
+                "data/si-en/dev.sien.df.short.tsv"
+            ],
+            "mt_file": [
+                "data/si-en/word-probas/mt.dev.sien"
+            ],
+            "wp_file": [
+                "data/si-en/word-probas/word_probas.dev.sien"
+            ]
+        },
+        {
+            "id": "ru_en",
+            "tsv_file": [
+                "data/ru-en/dev.ruen.df.short.tsv"
+            ],
+            "mt_file": [
+                "data/ru-en/word-probas/mt.dev.ruen"
+            ],
+            "wp_file": [
+                "data/ru-en/word-probas/word_probas.dev.ruen"
+            ]
+        }
+    ],
+    "test": [
+        {
+            "id": "ne_en",
+            "tsv_file": [
+                "data/ne-en/test20.neen.df.short.tsv"
+            ],
+            "mt_file": [
+                "data/ne-en/word-probas/mt.test20.neen"
+            ],
+            "wp_file": [
+                "data/ne-en/word-probas/word_probas.test20.neen"
+            ]
+        }
+    ],
+    "output_dir": "experiments/H1.2/mtl_0shot_no_neen/run1/"
+}
