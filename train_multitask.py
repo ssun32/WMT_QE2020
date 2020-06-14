@@ -40,26 +40,27 @@ gpu=torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 transformer = AutoModel.from_pretrained(model_name)
 
-train = config["train"][0]
-train_ids_list = [train["id"]]
-train_file_list = [train["tsv_file"]]
-train_mt_file_list = [train["mt_file"]]
-train_wp_file_list = [train["wp_file"]]
+train_ids_list = []
+train_file_list = []
+train_mt_file_list = []
+train_wp_file_list = []
 
 dev_datasets, test_datasets = [], {}
 dev_ids, test_ids = [], []
-for train, dev, test in zip(config["train"][1:], config["dev"], config["test"]):
+for train in config["train"]:
     train_ids_list.append(train["id"])
     train_file_list.append(train["tsv_file"])
     train_mt_file_list.append(train["mt_file"])
     train_wp_file_list.append(train["wp_file"])
 
+for dev in config["dev"]:
     dev_ids.append(dev["id"])
     dev_file = dev["tsv_file"]
     dev_mt_file = dev["mt_file"]
     dev_wp_file = dev["wp_file"]
     dev_datasets.append((dev["id"], QEDataset(dev_file, dev_mt_file, dev_wp_file)))
 
+for test in config["test"]:
     test_ids.append(test["id"])
     test_file = test["tsv_file"]
     test_mt_file = test["mt_file"]
@@ -80,10 +81,12 @@ model = model.to(gpu)
 loss_fn = torch.nn.MSELoss()
 
 log_file = os.path.join(config["output_dir"], "log")
-logging.basicConfig(filename=log_file,
-                            filemode='a',
-                            format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
+logging.basicConfig(format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
                             datefmt='%H:%M:%S',
+			    handlers=[
+				logging.FileHandler(log_file),
+				logging.StreamHandler()
+			    ],
                             level=logging.DEBUG)
 
 def eval(dataset, id, get_metrics=False):
@@ -155,6 +158,7 @@ for epoch in range(epochs):
         del batch, wps, z_scores, z_score_outputs, loss
 
         if backprop and global_steps % eval_interval == 0:
+            logging.info("\nCalculating results on dev sets(s)... (lang specific MLP)")
             #eval on per_lang MLP layer
             for (id, dev_dataset) in dev_datasets:
                 predicted_scores, pearson, mse =  eval(dev_dataset, id, get_metrics=True)
@@ -177,7 +181,7 @@ for epoch in range(epochs):
             #eval on all_lang MLP 
             dev_results = []
             total_pearson, total = 0, 0
-            print("\nCalculating results on dev set(s)...")
+            logging.info("\nCalculating results on dev set(s)... (lang agnostic mlp)")
             for id, dev_dataset in dev_datasets:
                 predicted_scores, pearson, mse =  eval(dev_dataset, "all", get_metrics=True)
                 dev_results.append((id, predicted_scores, pearson, mse))
@@ -190,7 +194,7 @@ for epoch in range(epochs):
                 print()
                 for id, predicted_scores, _, _ in dev_results:
                     best_dev_file = os.path.join(config["output_dir"], "%s.lang_agnost_mlp.dev.best.scores"%id)
-                    print("Saving best dev results to: %s" % best_dev_file)
+                    logging.info("Saving best dev results to: %s" % best_dev_file)
                     with open(best_dev_file, "w") as fout:
                         for score in predicted_scores:
                             print(score, file=fout)

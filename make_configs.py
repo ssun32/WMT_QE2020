@@ -100,5 +100,5 @@ make_config(["random2"] + random2, random2, random2, exp="H1.1", name="mtl_rando
 for ld in ids["all"]:
     id = "0shot_no_%s%s" % ld
     tmp = ["_".join(ld) for ld in ids[id]]
-    make_config([id] + tmp, tmp, ["%s_%s"%ld], exp="H1.2", name="mtl_%s"%id, n_runs=5, batch_size_per_gpu=8)
+    make_config([id] + tmp, all_lds, ["%s_%s"%ld], exp="H1.2", name="mtl_%s"%id, n_runs=5, batch_size_per_gpu=8)
 
