@@ -1,7 +1,8 @@
 import os
 import json
 from glob import glob
-n_runs = 5
+n_runs=5
+batch_size_per_gpu=8
  
 ids = {
  "all":[("en","de"),("en","zh"),("ro","en"),("et","en"),("si","en"),("ne","en"), ("ru", "en")],
@@ -92,14 +93,14 @@ make_config(["all"] + all_lds, all_lds, all_lds, exp="H1", name="mtl", n_runs=5,
 sharing_src = ["_".join(ld) for ld in ids["sharing_src"]]
 sharing_tgt = ["_".join(ld) for ld in ids["sharing_tgt"]]
 random2 = ["_".join(ld) for ld in ids["random2"]]
-make_config(["sharing_src"] + sharing_src, sharing_src, sharing_src, exp="H1.1", name="mtl_sharing_src", n_runs=5, batch_size_per_gpu=8)
-make_config(["sharing_tgt"] + sharing_tgt, sharing_tgt, sharing_tgt, exp="H1.1", name="mtl_sharing_tgt", n_runs=5, batch_size_per_gpu=8)
-make_config(["random2"] + random2, random2, random2, exp="H1.1", name="mtl_random2", n_runs=5, batch_size_per_gpu=8)
+make_config(["sharing_src"] + sharing_src, sharing_src, sharing_src, exp="H1.1", name="mtl_sharing_src", n_runs=n_runs, batch_size_per_gpu=batch_size_per_gpu)
+make_config(["sharing_tgt"] + sharing_tgt, sharing_tgt, sharing_tgt, exp="H1.1", name="mtl_sharing_tgt", n_runs=n_runs, batch_size_per_gpu=batch_size_per_gpu)
+make_config(["random2"] + random2, random2, random2, exp="H1.1", name="mtl_random2", n_runs=n_runs, batch_size_per_gpu=batch_size_per_gpu)
 
 #H1.2 experiments
 #zero shot
 for ld in ids["all"]:
     id = "0shot_no_%s%s" % ld
     tmp = ["_".join(ld) for ld in ids[id]]
-    make_config([id] + tmp, all_lds, ["%s_%s"%ld], exp="H1.2", name="mtl_%s"%id, n_runs=5, batch_size_per_gpu=8)
+    make_config([id] + tmp, all_lds, ["%s_%s"%ld], exp="H1.2", name="mtl_%s"%id, n_runs=n_runs, batch_size_per_gpu=batch_size_per_gpu)
 
