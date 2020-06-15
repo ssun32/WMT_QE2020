@@ -1,0 +1,40 @@
+09:04:26,840 root INFO 
+Calculating results on dev sets(s)... (lang specific MLP)
+09:05:21,713 root INFO 
+id:en_zh cur r: 0.1630 best r: 0.1630
+09:05:49,219 root INFO 
+id:ro_en cur r: 0.6122 best r: 0.6122
+09:06:16,706 root INFO 
+id:et_en cur r: 0.4567 best r: 0.4567
+09:07:11,626 root INFO 
+id:si_en cur r: 0.1130 best r: 0.1130
+09:07:39,183 root INFO 
+id:ne_en cur r: 0.5350 best r: 0.5350
+09:08:06,555 root INFO 
+id:ru_en cur r: 0.5465 best r: 0.5465
+09:08:06,556 root INFO 
+Calculating results on dev set(s)... (lang agnostic mlp)
+09:11:18,286 root INFO Saving best dev results to: experiments/H1.2/mtl_fewshot_0.05_sien/run0/en_de.lang_agnost_mlp.dev.best.scores
+09:11:18,289 root INFO Saving best dev results to: experiments/H1.2/mtl_fewshot_0.05_sien/run0/en_zh.lang_agnost_mlp.dev.best.scores
+09:11:18,292 root INFO Saving best dev results to: experiments/H1.2/mtl_fewshot_0.05_sien/run0/ro_en.lang_agnost_mlp.dev.best.scores
+09:11:18,294 root INFO Saving best dev results to: experiments/H1.2/mtl_fewshot_0.05_sien/run0/et_en.lang_agnost_mlp.dev.best.scores
+09:11:18,296 root INFO Saving best dev results to: experiments/H1.2/mtl_fewshot_0.05_sien/run0/si_en.lang_agnost_mlp.dev.best.scores
+09:11:18,298 root INFO Saving best dev results to: experiments/H1.2/mtl_fewshot_0.05_sien/run0/ne_en.lang_agnost_mlp.dev.best.scores
+09:11:18,300 root INFO Saving best dev results to: experiments/H1.2/mtl_fewshot_0.05_sien/run0/ru_en.lang_agnost_mlp.dev.best.scores
+09:11:45,691 root INFO Epoch 1 Global steps: 700 Train loss: 1.3321
+en_de Dev loss: 0.5827 r:0.2382
+en_zh Dev loss: 0.4931 r:0.1692
+ro_en Dev loss: 0.6640 r:0.6197
+et_en Dev loss: 0.6220 r:0.4364
+si_en Dev loss: 0.6560 r:0.0286
+ne_en Dev loss: 0.5444 r:0.5324
+ru_en Dev loss: 0.6103 r:0.5609
+Current avg r:0.3694 Best avg r: 0.3694
+09:19:54,526 root INFO 
+Calculating results on dev sets(s)... (lang specific MLP)
+09:20:21,974 root INFO 
+id:en_de cur r: 0.0530 best r: 0.0530
+09:20:49,294 root INFO 
+id:en_zh cur r: 0.2217 best r: 0.2217
+09:21:16,751 root INFO 
+id:ro_en cur r: 0.6684 best r: 0.6684

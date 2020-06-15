@@ -9,3 +9,6 @@ do
     tar -xvzf $f
     rm $f
 done
+cd ../
+
+python sample_data.py

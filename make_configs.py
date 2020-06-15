@@ -27,13 +27,20 @@ ids = {
 
 
 #H1 experiments
-def get_files(lcodes, split="train"):
+def get_files(lcodes, split="train", sample_dict={}):
     tsv_file, mt_file, wp_file = [], [], []
     for src_lcode, tgt_lcode in lcodes:
+        if split=="train" and (src_lcode, tgt_lcode) in sample_dict:
+            p = sample_dict[(src_lcode, tgt_lcode)]
+            cur_split = "train_%s"%p
+        elif split=="test":
+            cur_split="test20"
+        else:
+            cur_split=split
         filedir = "data/%s-%s"%(src_lcode, tgt_lcode)
-        tsv_file += glob("%s/%s*.tsv" % (filedir,split))
-        mt_file += glob("%s/word-probas/mt.%s*" % (filedir,split))
-        wp_file += glob("%s/word-probas/word_probas.%s*" % (filedir,split))
+        tsv_file += glob("%s/%s.*.tsv" % (filedir,cur_split))
+        mt_file += glob("%s/word-probas/mt.%s.*" % (filedir,cur_split))
+        wp_file += glob("%s/word-probas/word_probas.%s.*" % (filedir,cur_split))
     return tsv_file, mt_file, wp_file
 
 def make_config(train, 
@@ -42,7 +49,8 @@ def make_config(train,
                 exp="H1",
                 name="all",
                 n_runs=1, 
-                batch_size_per_gpu=8):
+                batch_size_per_gpu=8,
+                sample_dict={}):
     for run in range(n_runs):
         config = {
                   "model_name":"xlm-roberta-large",
@@ -68,7 +76,7 @@ def make_config(train,
 
             for split_name, split in [("train", train), ("dev", dev), ("test", test)]:
                 for id in split:
-                    tsv_file, mt_file, wp_file = get_files(ids[id], split=split_name)
+                    tsv_file, mt_file, wp_file = get_files(ids[id], split=split_name, sample_dict=sample_dict)
                     if len(tsv_file) > 1:
                         id = "all"
                     config[split_name].append({"id": id, "tsv_file":tsv_file, "mt_file":mt_file, "wp_file":wp_file})
@@ -103,4 +111,11 @@ for ld in ids["all"]:
     id = "0shot_no_%s%s" % ld
     tmp = ["_".join(ld) for ld in ids[id]]
     make_config([id] + tmp, all_lds, ["%s_%s"%ld], exp="H1.2", name="mtl_%s"%id, n_runs=n_runs, batch_size_per_gpu=batch_size_per_gpu)
+
+#few shot
+for ld in ids["all"]:
+    for p in [0.05, 0.1, 0.25, 0.5, 0.75, 1.0]:
+        id = "fewshot_%s_%s%s" % (p, ld[0], ld[1])
+        make_config(["all"] + all_lds, all_lds, ["%s_%s"%ld], exp="H1.2", name="mtl_%s"%id, n_runs=n_runs, batch_size_per_gpu=batch_size_per_gpu, sample_dict={ld:p})
+
 
