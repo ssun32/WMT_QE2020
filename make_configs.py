@@ -44,10 +44,11 @@ def make_config(train,
                 batch_size_per_gpu=8):
     for run in range(n_runs):
         config = {
-                  #"model_name":"xlm-roberta-large",
+                  "model_name":"xlm-roberta-large",
+                  "model_dim":1024,
                   "epochs":20,
-                  "model_name":"bert-base-multilingual-cased",
-                  "model_dim":768,
+                  #"model_name":"bert-base-multilingual-cased",
+                  #"model_dim":768,
                   "learning_rate":1e-6,
                   "batch_size_per_gpu": batch_size_per_gpu,
                   "accum_grad": 1,
