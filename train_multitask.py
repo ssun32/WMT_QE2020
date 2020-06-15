@@ -159,8 +159,10 @@ for epoch in range(epochs):
 
         if backprop and global_steps % eval_interval == 0:
             logging.info("\nCalculating results on dev sets(s)... (lang specific MLP)")
-            #eval on per_lang MLP layer
+            #eval on lang spec MLP layer
             for (id, dev_dataset) in dev_datasets:
+                if id not in train_ids_list:
+                    continue
                 predicted_scores, pearson, mse =  eval(dev_dataset, id, get_metrics=True)
                 if pearson > best_eval_per_lang[id]:
                     best_eval_per_lang[id] = pearson
@@ -178,7 +180,7 @@ for epoch in range(epochs):
                                 print(score, file=fout)
                     logging.info("\nid:%s cur r: %.4f best r: %.4f" % (id, pearson, best_eval_per_lang[id]))
 
-            #eval on all_lang MLP 
+            #eval on lang agnost MLP 
             dev_results = []
             total_pearson, total = 0, 0
             logging.info("\nCalculating results on dev set(s)... (lang agnostic mlp)")
