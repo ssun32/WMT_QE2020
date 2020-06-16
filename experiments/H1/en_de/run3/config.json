@@ -26,13 +26,13 @@
         {
             "id": "en_de",
             "tsv_file": [
-                "data/en-de/dev.ende.df.short.tsv"
+                "data/en-de/traindev.ende.df.short.tsv"
             ],
             "mt_file": [
-                "data/en-de/word-probas/mt.dev.ende"
+                "data/en-de/word-probas/mt.traindev.ende"
             ],
             "wp_file": [
-                "data/en-de/word-probas/word_probas.dev.ende"
+                "data/en-de/word-probas/word_probas.traindev.ende"
             ]
         }
     ],
@@ -40,13 +40,13 @@
         {
             "id": "en_de",
             "tsv_file": [
-                "data/en-de/test20.ende.df.short.tsv"
+                "data/en-de/dev.ende.df.short.tsv"
             ],
             "mt_file": [
-                "data/en-de/word-probas/mt.test20.ende"
+                "data/en-de/word-probas/mt.dev.ende"
             ],
             "wp_file": [
-                "data/en-de/word-probas/word_probas.test20.ende"
+                "data/en-de/word-probas/word_probas.dev.ende"
             ]
         }
     ],

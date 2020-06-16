@@ -33,8 +33,10 @@ def get_files(lcodes, split="train", sample_dict={}):
         if split=="train" and (src_lcode, tgt_lcode) in sample_dict:
             p = sample_dict[(src_lcode, tgt_lcode)]
             cur_split = "train_%s"%p
+        elif split=="dev":
+            cur_split="traindev"
         elif split=="test":
-            cur_split="test20"
+            cur_split="dev"
         else:
             cur_split=split
         filedir = "data/%s-%s"%(src_lcode, tgt_lcode)
