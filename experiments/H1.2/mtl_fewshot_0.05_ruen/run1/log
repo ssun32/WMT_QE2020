@@ -1,0 +1,238 @@
+17:23:45,719 root INFO 
+Calculating results on dev sets(s)... (lang specific MLP)
+17:23:58,613 root INFO 
+id:en_de cur r: 0.1347 best r: 0.1347
+17:24:11,465 root INFO 
+id:en_zh cur r: 0.2823 best r: 0.2823
+17:24:24,310 root INFO 
+id:ro_en cur r: 0.5944 best r: 0.5944
+17:24:37,168 root INFO 
+id:et_en cur r: 0.5659 best r: 0.5659
+17:24:50,37 root INFO 
+id:si_en cur r: 0.4929 best r: 0.4929
+17:25:02,924 root INFO 
+id:ne_en cur r: 0.5584 best r: 0.5584
+17:25:28,604 root INFO 
+id:ru_en cur r: 0.5919 best r: 0.5919
+17:25:28,605 root INFO 
+Calculating results on dev set(s)... (lang agnostic mlp)
+17:26:58,839 root INFO Saving best dev results to: experiments/H1.2/mtl_fewshot_0.05_ruen/run1/en_de.lang_agnost_mlp.dev.best.scores
+17:26:58,846 root INFO Saving best dev results to: experiments/H1.2/mtl_fewshot_0.05_ruen/run1/en_zh.lang_agnost_mlp.dev.best.scores
+17:26:58,851 root INFO Saving best dev results to: experiments/H1.2/mtl_fewshot_0.05_ruen/run1/ro_en.lang_agnost_mlp.dev.best.scores
+17:26:58,855 root INFO Saving best dev results to: experiments/H1.2/mtl_fewshot_0.05_ruen/run1/et_en.lang_agnost_mlp.dev.best.scores
+17:26:58,860 root INFO Saving best dev results to: experiments/H1.2/mtl_fewshot_0.05_ruen/run1/si_en.lang_agnost_mlp.dev.best.scores
+17:26:58,865 root INFO Saving best dev results to: experiments/H1.2/mtl_fewshot_0.05_ruen/run1/ne_en.lang_agnost_mlp.dev.best.scores
+17:26:58,870 root INFO Saving best dev results to: experiments/H1.2/mtl_fewshot_0.05_ruen/run1/ru_en.lang_agnost_mlp.dev.best.scores
+17:27:11,686 root INFO Epoch 1 Global steps: 700 Train loss: 1.2202
+en_de Dev loss: 1.0250 r:0.1205
+en_zh Dev loss: 0.8939 r:0.2872
+ro_en Dev loss: 0.5501 r:0.6375
+et_en Dev loss: 0.5881 r:0.5739
+si_en Dev loss: 0.6452 r:0.4641
+ne_en Dev loss: 0.6318 r:0.5892
+ru_en Dev loss: 0.6317 r:0.5566
+Current avg r:0.4613 Best avg r: 0.4613
+17:31:49,37 root INFO 
+Calculating results on dev sets(s)... (lang specific MLP)
+17:32:01,940 root INFO 
+id:en_de cur r: 0.1454 best r: 0.1454
+17:32:27,634 root INFO 
+id:ro_en cur r: 0.6534 best r: 0.6534
+17:32:40,533 root INFO 
+id:et_en cur r: 0.5842 best r: 0.5842
+17:33:06,352 root INFO 
+id:ne_en cur r: 0.5733 best r: 0.5733
+17:33:32,10 root INFO 
+id:ru_en cur r: 0.6436 best r: 0.6436
+17:33:32,10 root INFO 
+Calculating results on dev set(s)... (lang agnostic mlp)
+17:35:02,260 root INFO Saving best dev results to: experiments/H1.2/mtl_fewshot_0.05_ruen/run1/en_de.lang_agnost_mlp.dev.best.scores
+17:35:02,267 root INFO Saving best dev results to: experiments/H1.2/mtl_fewshot_0.05_ruen/run1/en_zh.lang_agnost_mlp.dev.best.scores
+17:35:02,272 root INFO Saving best dev results to: experiments/H1.2/mtl_fewshot_0.05_ruen/run1/ro_en.lang_agnost_mlp.dev.best.scores
+17:35:02,278 root INFO Saving best dev results to: experiments/H1.2/mtl_fewshot_0.05_ruen/run1/et_en.lang_agnost_mlp.dev.best.scores
+17:35:02,284 root INFO Saving best dev results to: experiments/H1.2/mtl_fewshot_0.05_ruen/run1/si_en.lang_agnost_mlp.dev.best.scores
+17:35:02,289 root INFO Saving best dev results to: experiments/H1.2/mtl_fewshot_0.05_ruen/run1/ne_en.lang_agnost_mlp.dev.best.scores
+17:35:02,294 root INFO Saving best dev results to: experiments/H1.2/mtl_fewshot_0.05_ruen/run1/ru_en.lang_agnost_mlp.dev.best.scores
+17:35:15,129 root INFO Epoch 2 Global steps: 1400 Train loss: 1.0769
+en_de Dev loss: 0.9389 r:0.0978
+en_zh Dev loss: 0.8116 r:0.2575
+ro_en Dev loss: 0.5733 r:0.6596
+et_en Dev loss: 0.4947 r:0.5938
+si_en Dev loss: 0.7409 r:0.4454
+ne_en Dev loss: 0.5420 r:0.6095
+ru_en Dev loss: 0.5391 r:0.6809
+Current avg r:0.4778 Best avg r: 0.4778
+17:39:54,42 root INFO 
+Calculating results on dev sets(s)... (lang specific MLP)
+17:40:06,894 root INFO 
+id:en_de cur r: 0.2119 best r: 0.2119
+17:40:19,768 root INFO 
+id:en_zh cur r: 0.2826 best r: 0.2826
+17:40:32,658 root INFO 
+id:ro_en cur r: 0.6842 best r: 0.6842
+17:40:45,553 root INFO 
+id:et_en cur r: 0.6140 best r: 0.6140
+17:41:11,459 root INFO 
+id:ne_en cur r: 0.6345 best r: 0.6345
+17:41:37,171 root INFO 
+id:ru_en cur r: 0.6858 best r: 0.6858
+17:41:37,172 root INFO 
+Calculating results on dev set(s)... (lang agnostic mlp)
+17:43:07,564 root INFO Saving best dev results to: experiments/H1.2/mtl_fewshot_0.05_ruen/run1/en_de.lang_agnost_mlp.dev.best.scores
+17:43:07,573 root INFO Saving best dev results to: experiments/H1.2/mtl_fewshot_0.05_ruen/run1/en_zh.lang_agnost_mlp.dev.best.scores
+17:43:07,579 root INFO Saving best dev results to: experiments/H1.2/mtl_fewshot_0.05_ruen/run1/ro_en.lang_agnost_mlp.dev.best.scores
+17:43:07,590 root INFO Saving best dev results to: experiments/H1.2/mtl_fewshot_0.05_ruen/run1/et_en.lang_agnost_mlp.dev.best.scores
+17:43:07,596 root INFO Saving best dev results to: experiments/H1.2/mtl_fewshot_0.05_ruen/run1/si_en.lang_agnost_mlp.dev.best.scores
+17:43:07,603 root INFO Saving best dev results to: experiments/H1.2/mtl_fewshot_0.05_ruen/run1/ne_en.lang_agnost_mlp.dev.best.scores
+17:43:07,608 root INFO Saving best dev results to: experiments/H1.2/mtl_fewshot_0.05_ruen/run1/ru_en.lang_agnost_mlp.dev.best.scores
+17:43:20,446 root INFO Epoch 3 Global steps: 2100 Train loss: 0.9637
+en_de Dev loss: 0.9675 r:0.1269
+en_zh Dev loss: 0.7772 r:0.3258
+ro_en Dev loss: 0.4672 r:0.6973
+et_en Dev loss: 0.4276 r:0.6370
+si_en Dev loss: 0.6599 r:0.4748
+ne_en Dev loss: 0.4627 r:0.6568
+ru_en Dev loss: 0.4710 r:0.7047
+Current avg r:0.5176 Best avg r: 0.5176
+17:47:50,205 root INFO 
+Calculating results on dev sets(s)... (lang specific MLP)
+17:48:15,896 root INFO 
+id:en_zh cur r: 0.3501 best r: 0.3501
+17:48:28,762 root INFO 
+id:ro_en cur r: 0.7032 best r: 0.7032
+17:48:41,648 root INFO 
+id:et_en cur r: 0.6489 best r: 0.6489
+17:48:54,611 root INFO 
+id:si_en cur r: 0.5024 best r: 0.5024
+17:49:07,545 root INFO 
+id:ne_en cur r: 0.6764 best r: 0.6764
+17:49:33,225 root INFO 
+id:ru_en cur r: 0.6875 best r: 0.6875
+17:49:33,225 root INFO 
+Calculating results on dev set(s)... (lang agnostic mlp)
+17:51:03,615 root INFO Saving best dev results to: experiments/H1.2/mtl_fewshot_0.05_ruen/run1/en_de.lang_agnost_mlp.dev.best.scores
+17:51:03,629 root INFO Saving best dev results to: experiments/H1.2/mtl_fewshot_0.05_ruen/run1/en_zh.lang_agnost_mlp.dev.best.scores
+17:51:03,634 root INFO Saving best dev results to: experiments/H1.2/mtl_fewshot_0.05_ruen/run1/ro_en.lang_agnost_mlp.dev.best.scores
+17:51:03,640 root INFO Saving best dev results to: experiments/H1.2/mtl_fewshot_0.05_ruen/run1/et_en.lang_agnost_mlp.dev.best.scores
+17:51:03,648 root INFO Saving best dev results to: experiments/H1.2/mtl_fewshot_0.05_ruen/run1/si_en.lang_agnost_mlp.dev.best.scores
+17:51:03,654 root INFO Saving best dev results to: experiments/H1.2/mtl_fewshot_0.05_ruen/run1/ne_en.lang_agnost_mlp.dev.best.scores
+17:51:03,658 root INFO Saving best dev results to: experiments/H1.2/mtl_fewshot_0.05_ruen/run1/ru_en.lang_agnost_mlp.dev.best.scores
+17:51:16,481 root INFO Epoch 4 Global steps: 2800 Train loss: 0.9739
+en_de Dev loss: 0.9604 r:0.1334
+en_zh Dev loss: 0.7347 r:0.3589
+ro_en Dev loss: 0.4468 r:0.7172
+et_en Dev loss: 0.4018 r:0.6621
+si_en Dev loss: 0.6278 r:0.5012
+ne_en Dev loss: 0.4325 r:0.6823
+ru_en Dev loss: 0.4764 r:0.7124
+Current avg r:0.5382 Best avg r: 0.5382
+17:55:46,392 root INFO 
+Calculating results on dev sets(s)... (lang specific MLP)
+17:56:12,79 root INFO 
+id:en_zh cur r: 0.3687 best r: 0.3687
+17:56:37,837 root INFO 
+id:et_en cur r: 0.6633 best r: 0.6633
+17:57:16,442 root INFO 
+Calculating results on dev set(s)... (lang agnostic mlp)
+17:58:46,759 root INFO Saving best dev results to: experiments/H1.2/mtl_fewshot_0.05_ruen/run1/en_de.lang_agnost_mlp.dev.best.scores
+17:58:46,778 root INFO Saving best dev results to: experiments/H1.2/mtl_fewshot_0.05_ruen/run1/en_zh.lang_agnost_mlp.dev.best.scores
+17:58:46,801 root INFO Saving best dev results to: experiments/H1.2/mtl_fewshot_0.05_ruen/run1/ro_en.lang_agnost_mlp.dev.best.scores
+17:58:46,814 root INFO Saving best dev results to: experiments/H1.2/mtl_fewshot_0.05_ruen/run1/et_en.lang_agnost_mlp.dev.best.scores
+17:58:46,819 root INFO Saving best dev results to: experiments/H1.2/mtl_fewshot_0.05_ruen/run1/si_en.lang_agnost_mlp.dev.best.scores
+17:58:46,826 root INFO Saving best dev results to: experiments/H1.2/mtl_fewshot_0.05_ruen/run1/ne_en.lang_agnost_mlp.dev.best.scores
+17:58:46,834 root INFO Saving best dev results to: experiments/H1.2/mtl_fewshot_0.05_ruen/run1/ru_en.lang_agnost_mlp.dev.best.scores
+17:58:59,636 root INFO Epoch 5 Global steps: 3500 Train loss: 0.9388
+en_de Dev loss: 0.9499 r:0.1650
+en_zh Dev loss: 0.7165 r:0.3961
+ro_en Dev loss: 0.4380 r:0.7194
+et_en Dev loss: 0.3823 r:0.6772
+si_en Dev loss: 0.6678 r:0.5094
+ne_en Dev loss: 0.4211 r:0.6883
+ru_en Dev loss: 0.5062 r:0.7181
+Current avg r:0.5534 Best avg r: 0.5534
+18:03:42,405 root INFO 
+Calculating results on dev sets(s)... (lang specific MLP)
+18:04:08,161 root INFO 
+id:en_zh cur r: 0.3689 best r: 0.3689
+18:04:21,52 root INFO 
+id:ro_en cur r: 0.7325 best r: 0.7325
+18:04:33,975 root INFO 
+id:et_en cur r: 0.6683 best r: 0.6683
+18:04:46,900 root INFO 
+id:si_en cur r: 0.5149 best r: 0.5149
+18:04:59,812 root INFO 
+id:ne_en cur r: 0.6888 best r: 0.6888
+18:05:25,443 root INFO 
+id:ru_en cur r: 0.6942 best r: 0.6942
+18:05:25,443 root INFO 
+Calculating results on dev set(s)... (lang agnostic mlp)
+18:06:55,672 root INFO Saving best dev results to: experiments/H1.2/mtl_fewshot_0.05_ruen/run1/en_de.lang_agnost_mlp.dev.best.scores
+18:06:55,679 root INFO Saving best dev results to: experiments/H1.2/mtl_fewshot_0.05_ruen/run1/en_zh.lang_agnost_mlp.dev.best.scores
+18:06:55,685 root INFO Saving best dev results to: experiments/H1.2/mtl_fewshot_0.05_ruen/run1/ro_en.lang_agnost_mlp.dev.best.scores
+18:06:55,690 root INFO Saving best dev results to: experiments/H1.2/mtl_fewshot_0.05_ruen/run1/et_en.lang_agnost_mlp.dev.best.scores
+18:06:55,695 root INFO Saving best dev results to: experiments/H1.2/mtl_fewshot_0.05_ruen/run1/si_en.lang_agnost_mlp.dev.best.scores
+18:06:55,701 root INFO Saving best dev results to: experiments/H1.2/mtl_fewshot_0.05_ruen/run1/ne_en.lang_agnost_mlp.dev.best.scores
+18:06:55,706 root INFO Saving best dev results to: experiments/H1.2/mtl_fewshot_0.05_ruen/run1/ru_en.lang_agnost_mlp.dev.best.scores
+18:07:08,523 root INFO Epoch 6 Global steps: 4200 Train loss: 0.9128
+en_de Dev loss: 0.9244 r:0.1579
+en_zh Dev loss: 0.7452 r:0.3992
+ro_en Dev loss: 0.4235 r:0.7456
+et_en Dev loss: 0.3875 r:0.6739
+si_en Dev loss: 0.6561 r:0.5248
+ne_en Dev loss: 0.4644 r:0.6815
+ru_en Dev loss: 0.4481 r:0.7260
+Current avg r:0.5584 Best avg r: 0.5584
+18:11:38,894 root INFO 
+Calculating results on dev sets(s)... (lang specific MLP)
+18:12:43,313 root INFO 
+id:si_en cur r: 0.5178 best r: 0.5178
+18:12:56,244 root INFO 
+id:ne_en cur r: 0.6915 best r: 0.6915
+18:13:09,68 root INFO 
+Calculating results on dev set(s)... (lang agnostic mlp)
+18:14:39,301 root INFO Saving best dev results to: experiments/H1.2/mtl_fewshot_0.05_ruen/run1/en_de.lang_agnost_mlp.dev.best.scores
+18:14:39,308 root INFO Saving best dev results to: experiments/H1.2/mtl_fewshot_0.05_ruen/run1/en_zh.lang_agnost_mlp.dev.best.scores
+18:14:39,318 root INFO Saving best dev results to: experiments/H1.2/mtl_fewshot_0.05_ruen/run1/ro_en.lang_agnost_mlp.dev.best.scores
+18:14:39,323 root INFO Saving best dev results to: experiments/H1.2/mtl_fewshot_0.05_ruen/run1/et_en.lang_agnost_mlp.dev.best.scores
+18:14:39,334 root INFO Saving best dev results to: experiments/H1.2/mtl_fewshot_0.05_ruen/run1/si_en.lang_agnost_mlp.dev.best.scores
+18:14:39,342 root INFO Saving best dev results to: experiments/H1.2/mtl_fewshot_0.05_ruen/run1/ne_en.lang_agnost_mlp.dev.best.scores
+18:14:39,348 root INFO Saving best dev results to: experiments/H1.2/mtl_fewshot_0.05_ruen/run1/ru_en.lang_agnost_mlp.dev.best.scores
+18:14:52,166 root INFO Epoch 7 Global steps: 4900 Train loss: 0.8714
+en_de Dev loss: 0.9690 r:0.1800
+en_zh Dev loss: 0.7810 r:0.3942
+ro_en Dev loss: 0.5071 r:0.7485
+et_en Dev loss: 0.4084 r:0.6769
+si_en Dev loss: 0.7815 r:0.5274
+ne_en Dev loss: 0.5315 r:0.6828
+ru_en Dev loss: 0.5436 r:0.7030
+Current avg r:0.5590 Best avg r: 0.5590
+18:19:35,276 root INFO 
+Calculating results on dev sets(s)... (lang specific MLP)
+18:20:00,964 root INFO 
+id:en_zh cur r: 0.4045 best r: 0.4045
+18:20:13,825 root INFO 
+id:ro_en cur r: 0.7432 best r: 0.7432
+18:20:26,721 root INFO 
+id:et_en cur r: 0.6855 best r: 0.6855
+18:20:39,654 root INFO 
+id:si_en cur r: 0.5314 best r: 0.5314
+18:20:52,568 root INFO 
+id:ne_en cur r: 0.7106 best r: 0.7106
+18:21:05,370 root INFO 
+Calculating results on dev set(s)... (lang agnostic mlp)
+18:22:35,502 root INFO Saving best dev results to: experiments/H1.2/mtl_fewshot_0.05_ruen/run1/en_de.lang_agnost_mlp.dev.best.scores
+18:22:35,511 root INFO Saving best dev results to: experiments/H1.2/mtl_fewshot_0.05_ruen/run1/en_zh.lang_agnost_mlp.dev.best.scores
+18:22:35,517 root INFO Saving best dev results to: experiments/H1.2/mtl_fewshot_0.05_ruen/run1/ro_en.lang_agnost_mlp.dev.best.scores
+18:22:35,523 root INFO Saving best dev results to: experiments/H1.2/mtl_fewshot_0.05_ruen/run1/et_en.lang_agnost_mlp.dev.best.scores
+18:22:35,530 root INFO Saving best dev results to: experiments/H1.2/mtl_fewshot_0.05_ruen/run1/si_en.lang_agnost_mlp.dev.best.scores
+18:22:35,536 root INFO Saving best dev results to: experiments/H1.2/mtl_fewshot_0.05_ruen/run1/ne_en.lang_agnost_mlp.dev.best.scores
+18:22:35,542 root INFO Saving best dev results to: experiments/H1.2/mtl_fewshot_0.05_ruen/run1/ru_en.lang_agnost_mlp.dev.best.scores
+18:22:48,360 root INFO Epoch 9 Global steps: 5600 Train loss: 0.8934
+en_de Dev loss: 0.8895 r:0.1804
+en_zh Dev loss: 0.7220 r:0.4117
+ro_en Dev loss: 0.3840 r:0.7609
+et_en Dev loss: 0.3736 r:0.6909
+si_en Dev loss: 0.6402 r:0.5471
+ne_en Dev loss: 0.4266 r:0.7062
+ru_en Dev loss: 0.4407 r:0.7253
+Current avg r:0.5747 Best avg r: 0.5747
