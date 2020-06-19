@@ -140,8 +140,8 @@ for epoch in range(epochs):
             continue
 
         loss = loss_fn(z_score_outputs.squeeze(), z_scores)
-        if cur_id != "all":
-            loss += loss_fn(joint_output.squeeze(), z_scores)
+        #if cur_id != "all":
+        #    loss += loss_fn(joint_output.squeeze(), z_scores)
         cur_batch_size = z_score_outputs.size(0)
 
         total_loss += loss.item() * cur_batch_size
