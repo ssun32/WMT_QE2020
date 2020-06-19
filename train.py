@@ -166,11 +166,11 @@ for epoch in range(epochs):
 
                     test_results = []
                     print("\nCalculating results on test set(s)...")
-                    for lcodes, test_dataset in test_datasets:
+                    for id, test_dataset in test_datasets:
                         predicted_scores, _, _ =  eval(test_dataset)
-                        test_results.append((lcodes, predicted_scores))
+                        test_results.append((id, predicted_scores))
 
-                    for lcodes, predicted_scores in test_results:
+                    for id, predicted_scores in test_results:
                         best_test_file = os.path.join(config["output_dir"], "%s.test.best.scores"%id)
 
                         print("Saving best test results to: %s" % best_test_file)
