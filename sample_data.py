@@ -56,7 +56,7 @@ for src, tgt in lcodes:
              open(mt_f.replace("train", "train_%s"%p), "w") as fmt:
                  print(header, end='', file=ftrain)
 
-                 for t,w,m in samples:
+                 for t,w,m in samples * int(1/p):
                      print(t, end='', file=ftrain)
                      print(w, end='', file=fwp)
                      print(m, end='', file=fmt)
