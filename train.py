@@ -188,7 +188,7 @@ for epoch in range(epochs):
                     log +="%s Dev loss: %.4f r:%.4f\n" % (id, mse, pearson)
                 log +="Current avg r:%.4f Best avg r: %.4f" % (avg_pearson, best_eval)
                 logging.info(log)
-        if early_stop > 25:
+        if early_stop > 200:
             break
-    if early_stop > 25:
+    if early_stop > 200:
         break

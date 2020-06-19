@@ -1,0 +1,105 @@
+{
+    "model_name": "xlm-roberta-large",
+    "model_dim": 1024,
+    "epochs": 20,
+    "learning_rate": 1e-06,
+    "batch_size_per_gpu": 8,
+    "accum_grad": 1,
+    "eval_interval": 200,
+    "use_word_probs": false,
+    "use_secondary_loss": false,
+    "train": [
+        {
+            "id": "all",
+            "tsv_file": [
+                "data/en-de/train.ende.df.short.tsv",
+                "data/en-zh/train.enzh.df.short.tsv"
+            ],
+            "mt_file": [
+                "data/en-de/word-probas/mt.train.ende",
+                "data/en-zh/word-probas/mt.train.enzh"
+            ],
+            "wp_file": [
+                "data/en-de/word-probas/word_probas.train.ende",
+                "data/en-zh/word-probas/word_probas.train.enzh"
+            ]
+        },
+        {
+            "id": "en_de",
+            "tsv_file": [
+                "data/en-de/train.ende.df.short.tsv"
+            ],
+            "mt_file": [
+                "data/en-de/word-probas/mt.train.ende"
+            ],
+            "wp_file": [
+                "data/en-de/word-probas/word_probas.train.ende"
+            ]
+        },
+        {
+            "id": "en_zh",
+            "tsv_file": [
+                "data/en-zh/train.enzh.df.short.tsv"
+            ],
+            "mt_file": [
+                "data/en-zh/word-probas/mt.train.enzh"
+            ],
+            "wp_file": [
+                "data/en-zh/word-probas/word_probas.train.enzh"
+            ]
+        }
+    ],
+    "dev": [
+        {
+            "id": "en_de",
+            "tsv_file": [
+                "data/en-de/traindev.ende.df.short.tsv"
+            ],
+            "mt_file": [
+                "data/en-de/word-probas/mt.traindev.ende"
+            ],
+            "wp_file": [
+                "data/en-de/word-probas/word_probas.traindev.ende"
+            ]
+        },
+        {
+            "id": "en_zh",
+            "tsv_file": [
+                "data/en-zh/traindev.enzh.df.short.tsv"
+            ],
+            "mt_file": [
+                "data/en-zh/word-probas/mt.traindev.enzh"
+            ],
+            "wp_file": [
+                "data/en-zh/word-probas/word_probas.traindev.enzh"
+            ]
+        }
+    ],
+    "test": [
+        {
+            "id": "en_de",
+            "tsv_file": [
+                "data/en-de/dev.ende.df.short.tsv"
+            ],
+            "mt_file": [
+                "data/en-de/word-probas/mt.dev.ende"
+            ],
+            "wp_file": [
+                "data/en-de/word-probas/word_probas.dev.ende"
+            ]
+        },
+        {
+            "id": "en_zh",
+            "tsv_file": [
+                "data/en-zh/dev.enzh.df.short.tsv"
+            ],
+            "mt_file": [
+                "data/en-zh/word-probas/mt.dev.enzh"
+            ],
+            "wp_file": [
+                "data/en-zh/word-probas/word_probas.dev.enzh"
+            ]
+        }
+    ],
+    "output_dir": "experiments_xlmr/H1.1/mtl_sharing_src/run2/"
+}
