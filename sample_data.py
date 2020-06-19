@@ -28,7 +28,7 @@ for src, tgt in lcodes:
     print(len(traindev_samples))
 
     with open(train_f.replace("train", "train"), "w") as ftrain, \
-         open(word_prob_f.replace("train", "trains"), "w") as fwp, \
+         open(word_prob_f.replace("train", "train"), "w") as fwp, \
          open(mt_f.replace("train", "train"), "w") as fmt:
              print(header, end='', file=ftrain)
 
