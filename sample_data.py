@@ -49,17 +49,28 @@ for src, tgt in lcodes:
 
 
     for p in [0.05, 0.1, 0.25, 0.5, 0.75, 1.0]:
-        samples = random.sample(train_samples, int(len(train_samples) * p))
+        t_samples = random.sample(train_samples, int(len(train_samples) * p))
+        td_samples = random.sample(traindev_samples, int(len(traindev_samples) * p))
+
 
         with open(train_f.replace("train", "train_%s"%p), "w") as ftrain, \
              open(word_prob_f.replace("train", "train_%s"%p), "w") as fwp, \
              open(mt_f.replace("train", "train_%s"%p), "w") as fmt:
                  print(header, end='', file=ftrain)
 
-                 for t,w,m in samples * int(1/p):
+                 for t,w,m in t_samples * int(1/p):
                      print(t, end='', file=ftrain)
                      print(w, end='', file=fwp)
                      print(m, end='', file=fmt)
 
 
+        with open(train_f.replace("train", "traindev_%s"%p), "w") as ftrain, \
+             open(word_prob_f.replace("train", "traindev_%s"%p), "w") as fwp, \
+             open(mt_f.replace("train", "traindev_%s"%p), "w") as fmt:
+                 print(header, end='', file=ftrain)
+
+                 for t,w,m in td_samples:
+                     print(t, end='', file=ftrain)
+                     print(w, end='', file=fwp)
+                     print(m, end='', file=fmt)
 
