@@ -61,12 +61,13 @@ train_wp_file = train["wp_file"]
 train_dataset = QEDataset(train_file, train_mt_file, train_wp_file)
 
 dev_datasets, test_datasets = [], []
-for dev, test in zip(config["dev"], config["test"]):
+for dev in config["dev"]:
     dev_file = dev["tsv_file"]
     dev_mt_file = dev["mt_file"]
     dev_wp_file = dev["wp_file"]
     dev_datasets.append((dev["id"], QEDataset(dev_file, dev_mt_file, dev_wp_file)))
 
+for test in config["test"]:
     test_file = test["tsv_file"]
     test_mt_file = test["mt_file"]
     test_wp_file = test["wp_file"]
