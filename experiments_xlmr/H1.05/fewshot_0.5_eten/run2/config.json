@@ -1,0 +1,54 @@
+{
+    "model_name": "xlm-roberta-large",
+    "model_dim": 1024,
+    "epochs": 20,
+    "learning_rate": 1e-06,
+    "batch_size_per_gpu": 8,
+    "accum_grad": 1,
+    "eval_interval": 100,
+    "use_word_probs": false,
+    "use_secondary_loss": false,
+    "train": [
+        {
+            "id": "et_en",
+            "tsv_file": [
+                "data/et-en/train_0.5.eten.df.short.tsv"
+            ],
+            "mt_file": [
+                "data/et-en/word-probas/mt.train_0.5.eten"
+            ],
+            "wp_file": [
+                "data/et-en/word-probas/word_probas.train_0.5.eten"
+            ]
+        }
+    ],
+    "dev": [
+        {
+            "id": "et_en",
+            "tsv_file": [
+                "data/et-en/traindev_0.5.eten.df.short.tsv"
+            ],
+            "mt_file": [
+                "data/et-en/word-probas/mt.traindev_0.5.eten"
+            ],
+            "wp_file": [
+                "data/et-en/word-probas/word_probas.traindev_0.5.eten"
+            ]
+        }
+    ],
+    "test": [
+        {
+            "id": "et_en",
+            "tsv_file": [
+                "data/et-en/dev.eten.df.short.tsv"
+            ],
+            "mt_file": [
+                "data/et-en/word-probas/mt.dev.eten"
+            ],
+            "wp_file": [
+                "data/et-en/word-probas/word_probas.dev.eten"
+            ]
+        }
+    ],
+    "output_dir": "experiments_xlmr/H1.05/fewshot_0.5_eten/run2/"
+}
