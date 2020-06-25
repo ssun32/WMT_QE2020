@@ -1,0 +1,54 @@
+{
+    "model_name": "xlm-roberta-large",
+    "model_dim": 1024,
+    "epochs": 20,
+    "learning_rate": 1e-06,
+    "batch_size_per_gpu": 8,
+    "accum_grad": 1,
+    "eval_interval": 100,
+    "use_word_probs": false,
+    "use_secondary_loss": false,
+    "train": [
+        {
+            "id": "en_zh",
+            "tsv_file": [
+                "data/en-zh/train_0.75.enzh.df.short.tsv"
+            ],
+            "mt_file": [
+                "data/en-zh/word-probas/mt.train_0.75.enzh"
+            ],
+            "wp_file": [
+                "data/en-zh/word-probas/word_probas.train_0.75.enzh"
+            ]
+        }
+    ],
+    "dev": [
+        {
+            "id": "en_zh",
+            "tsv_file": [
+                "data/en-zh/traindev_0.75.enzh.df.short.tsv"
+            ],
+            "mt_file": [
+                "data/en-zh/word-probas/mt.traindev_0.75.enzh"
+            ],
+            "wp_file": [
+                "data/en-zh/word-probas/word_probas.traindev_0.75.enzh"
+            ]
+        }
+    ],
+    "test": [
+        {
+            "id": "en_zh",
+            "tsv_file": [
+                "data/en-zh/dev.enzh.df.short.tsv"
+            ],
+            "mt_file": [
+                "data/en-zh/word-probas/mt.dev.enzh"
+            ],
+            "wp_file": [
+                "data/en-zh/word-probas/word_probas.dev.enzh"
+            ]
+        }
+    ],
+    "output_dir": "experiments_xlmr/H1.05/fewshot_0.75_enzh/run2/"
+}
