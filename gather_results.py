@@ -19,7 +19,7 @@ for f in glob("data/*/dev.*.df.short.tsv"):
 #H1 and H1.1
 results = {}
 exp_names = []
-for f in tqdm(glob("experiments_xlmr/H1*/*/run*/*test*")):
+for f in tqdm(glob("experiments/H1*/*/run*/*test*")):
     if "H1.2" in f or "H1.05" in f:
         continue
     if "fewshot" in f:
@@ -29,6 +29,10 @@ for f in tqdm(glob("experiments_xlmr/H1*/*/run*/*test*")):
     scores = [float(s) for s in open(f)]
 
     pc = pearsonr(gold_labels[(src, tgt)], scores)[0]
+    scores = np.array(scores)
+    gold = np.array(gold_labels[(src, tgt)])
+    rmse = np.sqrt(np.mean((scores-gold)**2))
+    #pc = rmse
     
     mlp = "lang_spec" if "lang_spec" in score_f else "lang_agnost"
     exp_names.append(exp_name)
@@ -54,11 +58,18 @@ for exp_name in sorted(exp_names, key=lambda x: (1 if "mtl" in x else 0, x)):
                 #print(k, results[k])
                 mean_result = np.mean(results[k])
                 std = np.std(results[k])
-                tmp_results.append("%.3f"%(mean_result))
+                tmp_results.append("%.2f"%(mean_result))
                 #tmp_results.append("%.3f/%.3f"%(mean_result,std))
                 #tmp_results.append("%.4f/%.4f/%.4f"%(mean_result, min(results[k]), max(results[k])))
             else:
                 tmp_results.append("-")
+
+      
+        try:
+            avg = "%.2f"%np.mean([float(t) for t in tmp_results])
+        except:
+            avg = "-"
+        tmp_results.append(avg)
 
         if "mtl" not in mlp:
             mlp = "-"
