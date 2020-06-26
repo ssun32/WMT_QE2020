@@ -19,7 +19,7 @@ for f in glob("data/*/dev.*.df.short.tsv"):
 #H1 and H1.1
 results = {}
 exp_names = []
-for f in tqdm(glob("experiments/H1/*/run*/*test*")):
+for f in tqdm(glob("experiments_xlmr/H1*/*/run*/*test*")):
     if "H1.2" in f or "H1.05" in f:
         continue
     if "fewshot" in f:
@@ -51,10 +51,11 @@ for exp_name in sorted(exp_names, key=lambda x: (1 if "mtl" in x else 0, x)):
 
             k = (exp_name, ld, mlp)
             if k in results:
-                print(k, results[k])
+                #print(k, results[k])
                 mean_result = np.mean(results[k])
                 std = np.std(results[k])
-                tmp_results.append("%.3f/%.3f"%(mean_result,std))
+                tmp_results.append("%.3f"%(mean_result))
+                #tmp_results.append("%.3f/%.3f"%(mean_result,std))
                 #tmp_results.append("%.4f/%.4f/%.4f"%(mean_result, min(results[k]), max(results[k])))
             else:
                 tmp_results.append("-")
@@ -65,11 +66,10 @@ for exp_name in sorted(exp_names, key=lambda x: (1 if "mtl" in x else 0, x)):
 
 print()
 
-"""
 #H1.2
 #zero shot and few shot
 results = {}
-for f in glob("experiments_xlmr/H1/*/run*/*test*"):
+for f in glob("experiments_xlmr/H1.05/*/run*/*test*"):
     if "fewshot" in f:
         continue
     _, _, exp_name, run, score_f = f.split("/")
@@ -77,7 +77,8 @@ for f in glob("experiments_xlmr/H1/*/run*/*test*"):
     scores = [float(s) for s in open(f)]
 
     pc = pearsonr(gold_labels[(src, tgt)], scores)[0]
-   
+  
+    print(exp_name)
     shot = float(exp_name.split("_")[-2])
     mlp = "Base"
 
@@ -86,7 +87,7 @@ for f in glob("experiments_xlmr/H1/*/run*/*test*"):
         results[k] = []
     results[k].append(pc)
 
-for f in glob("experiments_xlmr/H1.2/*/run*/*test*"):
+for f in glob("experiments_xlmr/H1.05/*/run*/*test*"):
     _, _, exp_name, run, score_f = f.split("/")
     src, tgt = score_f.split(".")[0].split("_")
     scores = [float(s) for s in open(f)]
@@ -124,4 +125,3 @@ for shot in [0.05, 0.1, 0.25, 0.5, 0.75, 1.0]:
             print("\cmidrule{2-9}")
         else:
             print("\midrule")
-"""
